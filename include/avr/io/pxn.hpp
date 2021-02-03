@@ -151,7 +151,7 @@ template<typename T>
 #endif
 [[gnu::always_inline]]
 inline void in(T pin) noexcept {
-    auto& ddrr = *traits::pin<T>{}.portx(pin);
+    auto& ddrr = *traits::pin<T>{}.ddrx(pin);
     ddrr = ddrr & ~(1 << traits::pin<T>{}.number(pin));
 }
 

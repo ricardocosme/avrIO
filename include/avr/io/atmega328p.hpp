@@ -60,7 +60,7 @@ constexpr auto& pb7{detail::global<pb7_t>::instance};
 // See pxn.hpp to know to use the abstraction.
 //
 template<uint8_t n>
-struct portCn : pxn<0x06, n> {};
+struct portCn : pxn<0x06 + 0x20, n> {};
 
 struct pc0_t : portCn<0> {};
 struct pc1_t : portCn<1> {};
@@ -101,7 +101,7 @@ constexpr auto& pc6{detail::global<pc6_t>::instance};
 // See pxn.hpp to know to use the abstraction.
 //
 template<uint8_t n>
-struct portDn : pxn<0x09, n> {};
+struct portDn : pxn<0x09 + 0x20, n> {};
 
 struct pd0_t : portCn<0> {};
 struct pd1_t : portCn<1> {};
