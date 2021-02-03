@@ -28,13 +28,15 @@ struct pxn_impl {
     constexpr
 #endif
     explicit pxn_impl(mode m) noexcept {
-        if(m == mode::input)
-            in(*this);
-        else if(m == mode::pullup) {
-            in(*this);
-            high(*this);
-        } else if(m == mode::output)
-            out(*this);
+        if(m == mode::input) {
+            in();
+            low();
+        } else if(m == mode::pullup) {
+            in(pullup);
+        } else if(m == mode::output) {
+            low();
+            out();
+        }
     }
     
     //Returns a reference to the Port Input Pins (PINx)
@@ -48,6 +50,37 @@ struct pxn_impl {
     //Returns a reference to the Data Register PORTx
     static volatile uint8_t* port() noexcept
     { return detail::to_addr(port_addr); }
+
+    //see avr/io/functions.hpp
+    static void low(bool v = true) noexcept
+    { avr::io::low(pxn_impl{}, v); }
+
+    //see avr/io/functions.hpp
+    static void high(bool v = true) noexcept
+    { avr::io::high(pxn_impl{}, v); }
+    
+    //see avr/io/functions.hpp
+    static void toggle() noexcept
+    { avr::io::toggle(pxn_impl{}); }
+
+    //see avr/io/functions.hpp
+    static void out() noexcept
+    { avr::io::out(pxn_impl{}); }
+
+    //see avr/io/functions.hpp
+    static void in() noexcept
+    { avr::io::in(pxn_impl{}); }
+
+    //see avr/io/functions.hpp
+    static void in(pullup_t) noexcept
+    { avr::io::in(pxn_impl{}, pullup); }
+
+    //see avr/io/functions.hpp
+    static bool is_high() noexcept
+    { return avr::io::is_high(pxn_impl{}); }
+
+    operator bool() noexcept
+    { return is_high(); }
 };
 
 template<uint8_t pin_addr, uint8_t pin_num>
