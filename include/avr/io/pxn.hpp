@@ -104,6 +104,21 @@ inline void high(T pin) noexcept {
     portr = portr | (1 << traits::pin<T>{}.number(pin));
 }
 
+//If the pin is configured as an output pin then it drives high(one)
+//if 'v' is true or it drives low(zero) if 'v' is false, otherwise the
+//internal pull-up resistor is enabled if 'v' is true or disabled if
+//'v' is false.
+#if (__cplusplus > 201703L) //C++20
+template<Pin T>
+#else
+template<typename T>
+#endif
+[[gnu::always_inline]]
+inline void on(T pin, bool v) noexcept {
+    if(v) high(pin);
+    else low(pin);
+}
+
 //Toggles the pin value
 #if (__cplusplus > 201703L) //C++20
 template<Pin T>
