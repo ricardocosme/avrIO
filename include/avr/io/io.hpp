@@ -7,3 +7,5 @@
 #elif defined(__AVR_ATmega328P__)
   #include <avr/io/atmega328p.hpp>
 #endif
+
+#include <avr/io/functions.hpp>

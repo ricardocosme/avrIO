@@ -113,10 +113,10 @@ Builds using ~avr-gcc 10.2 -std=c++20 -mmcu=attiny85 -Os~.
   3e:	0d c0       	rjmp	.+26     	; 0x5a <__SREG__+0x1b>
   40:	c0 98       	cbi	0x18, 0	; 24
   42:	b0 9a       	sbi	0x16, 0	; 22
-  44:	c0 98       	cbi	0x18, 0	; 24
+  44:	b8 98       	cbi	0x17, 0	; 23
   46:	c0 9a       	sbi	0x18, 0	; 24
   48:	c0 98       	cbi	0x18, 0	; 24
-  4a:	c0 98       	cbi	0x18, 0	; 24
+  4a:	b8 98       	cbi	0x17, 0	; 23
   4c:	c0 9a       	sbi	0x18, 0	; 24
   4e:	86 b3       	in	r24, 0x16	; 22
   50:	90 e0       	ldi	r25, 0x00	; 0
