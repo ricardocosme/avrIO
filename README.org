@@ -26,6 +26,7 @@ int main() {
     auto v = is_high(pb0);
 }
 #+END_SRC
+[[file:demo/basic.cpp][demo/basic.cpp]]
 
 The [[https://github.com/ricardocosme/avrIO][avrIO]] handles what is the type of the microcontroller to know what is the pin in the chip that is represented by ~avr::io::pb0~. (see [[file:include/avr/io/io.hpp][include/avr/io/io.hpp]])
 
