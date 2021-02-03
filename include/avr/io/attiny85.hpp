@@ -16,14 +16,14 @@ namespace avr { namespace io {
 // See pxn.hpp to know to use the abstraction.
 //
 template<uint8_t n>
-struct portBn : pxn<0x16 + 0x20, n> {};
+using portBn = pxn<0x16 + 0x20, n>;
 
-struct pb0_t : portBn<0> {};
-struct pb1_t : portBn<1> {};
-struct pb2_t : portBn<2> {};
-struct pb3_t : portBn<3> {};
-struct pb4_t : portBn<4> {};
-struct pb5_t : portBn<5> {};
+using pb0_t = portBn<0>;
+using pb1_t = portBn<1>;
+using pb2_t = portBn<2>;
+using pb3_t = portBn<3>;
+using pb4_t = portBn<4>;
+using pb5_t = portBn<5>;
 
 #if (__cplusplus >= 201703L)
 inline constexpr pb0_t pb0;

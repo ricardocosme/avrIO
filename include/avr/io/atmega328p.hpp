@@ -16,16 +16,16 @@ namespace avr { namespace io {
 // See pxn.hpp to know to use the abstraction.
 //
 template<uint8_t n>
-struct portBn : pxn<0x03 + 0x20, n> {};
+using portBn = pxn<0x03 + 0x20, n>;
 
-struct pb0_t : portBn<0> {};
-struct pb1_t : portBn<1> {};
-struct pb2_t : portBn<2> {};
-struct pb3_t : portBn<3> {};
-struct pb4_t : portBn<4> {};
-struct pb5_t : portBn<5> {};
-struct pb6_t : portBn<6> {};
-struct pb7_t : portBn<7> {};
+using pb0_t = portBn<0>;
+using pb1_t = portBn<1>;
+using pb2_t = portBn<2>;
+using pb3_t = portBn<3>;
+using pb4_t = portBn<4>;
+using pb5_t = portBn<5>;
+using pb6_t = portBn<6>;
+using pb7_t = portBn<7>;
 
 #if (__cplusplus >= 201703L)
 inline constexpr pb0_t pb0;
@@ -60,15 +60,15 @@ constexpr auto& pb7{detail::global<pb7_t>::instance};
 // See pxn.hpp to know to use the abstraction.
 //
 template<uint8_t n>
-struct portCn : pxn<0x06 + 0x20, n> {};
+using portCn = pxn<0x06 + 0x20, n>;
 
-struct pc0_t : portCn<0> {};
-struct pc1_t : portCn<1> {};
-struct pc2_t : portCn<2> {};
-struct pc3_t : portCn<3> {};
-struct pc4_t : portCn<4> {};
-struct pc5_t : portCn<5> {};
-struct pc6_t : portCn<6> {};
+using pc0_t = portCn<0>;
+using pc1_t = portCn<1>;
+using pc2_t = portCn<2>;
+using pc3_t = portCn<3>;
+using pc4_t = portCn<4>;
+using pc5_t = portCn<5>;
+using pc6_t = portCn<6>;
 
 #if (__cplusplus >= 201703L)
 inline constexpr pc0_t pc0;
@@ -101,15 +101,15 @@ constexpr auto& pc6{detail::global<pc6_t>::instance};
 // See pxn.hpp to know to use the abstraction.
 //
 template<uint8_t n>
-struct portDn : pxn<0x09 + 0x20, n> {};
+using portDn = pxn<0x09 + 0x20, n>;
 
-struct pd0_t : portCn<0> {};
-struct pd1_t : portCn<1> {};
-struct pd2_t : portCn<2> {};
-struct pd3_t : portCn<3> {};
-struct pd4_t : portCn<4> {};
-struct pd5_t : portCn<5> {};
-struct pd6_t : portCn<6> {};
+using pd0_t = portCn<0>;
+using pd1_t = portCn<1>;
+using pd2_t = portCn<2>;
+using pd3_t = portCn<3>;
+using pd4_t = portCn<4>;
+using pd5_t = portCn<5>;
+using pd6_t = portCn<6>;
 
 #if (__cplusplus >= 201703L)
 inline constexpr pd0_t pd0;
