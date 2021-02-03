@@ -90,6 +90,39 @@ Below are the microcontrollers that are supported at the moment but it should be
 1. ATmega328P
 2. ATtiny85/13A
 
+*** Performance
+The goal here is to compare the code generated using [[https://github.com/ricardocosme/avrIO][avrIO]] with a reference code that doesn't use any expressive abstration, like the one that uses ~sbi~ or ~cbi~ instructions.
+
+Builds using ~avr-gcc 10.2 -std=c++20 -mmcu=attiny85 -Os~.
+
+**** demo/basic.cpp
+#+BEGIN_SRC
+00000030 <main>:
+  30:	b8 9a       	sbi	0x17, 0	; 23
+  32:	c0 9a       	sbi	0x18, 0	; 24
+  34:	c0 98       	cbi	0x18, 0	; 24
+  36:	b0 9a       	sbi	0x16, 0	; 22
+  38:	c0 98       	cbi	0x18, 0	; 24
+  3a:	c0 9a       	sbi	0x18, 0	; 24
+  3c:	c0 98       	cbi	0x18, 0	; 24
+  3e:	c0 98       	cbi	0x18, 0	; 24
+  40:	c0 9a       	sbi	0x18, 0	; 24
+  42:	86 b3       	in	r24, 0x16	; 22
+  44:	90 e0       	ldi	r25, 0x00	; 0
+  46:	80 e0       	ldi	r24, 0x00	; 0
+  48:	08 95       	ret
+#+END_SRC
+
+**** demo/extension.cpp
+#+BEGIN_SRC
+00000030 <main>:
+  30:	c2 9a       	sbi	0x18, 2	; 24
+  32:	c2 98       	cbi	0x18, 2	; 24
+  34:	90 e0       	ldi	r25, 0x00	; 0
+  36:	80 e0       	ldi	r24, 0x00	; 0
+  38:	08 95       	ret
+#+END_SRC
+
 *** Requires
 1. ~avr-gcc~ with at least ~-std=c++11~ (Tests with ~avr-gcc 10.2~)
 2. [optional @ C++20] If the freestanding implementation of ~libstdc++~ is used, the concepts defined by the library are better defined because of the functions provided by the header ~<concepts>~.
