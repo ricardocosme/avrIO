@@ -1,0 +1,91 @@
+** avrIO
+C++11/17/20 abstraction to manipulate the I/O ports of AVR-8. The purpose of this library is to raise the level of abstraction to operate ports with zero-overhead in mind. avrIo is a header only library without any dependency to be used.
+
+*** Demo [Basic]
+#+BEGIN_SRC C++
+#include <avr/io/io.hpp>
+
+using namespace avr::io;
+
+int main() {
+    out(pb0); //pb0 configured as an output pin
+    high(pb0); //pb0 drives high(one)
+    low(pb0); //pb0 drives low(zero)
+    toggle(pb0); //toggles the pb0 state
+   
+    in(pb0); //pb0 configured as an input pin
+    high(pb0); //activates the pull-up resistor from the pb0
+    low(pb0); //deactivates the pull-up resistor from the pb0
+
+    in(pb0, pullup); //pb0 configured as in input pin with the pull-up
+    //resistor activated
+  
+    //checks if pb0's state is high(one)
+    auto v = is_high(pb0);
+}
+#+END_SRC
+
+*** Supporting different microcontrollers
+When writing an API it's enough to accept only one object of type ~pxn~(for example the ~pb0~ or ~pd7~ to represent a pin. This single object knows what is the microcontroller as also the memory addresses(PINx, DDRx and PORTxn) that are needed to operare the pin. For example, a constructor to instantiate an abstraction that represents a temperature sensor can be written as:
+#+BEGIN_SRC C++
+//C++11/17
+template<typename Data>
+struct sensor {
+    sensor(Data pin) { /*...*/ }
+};
+#+END_SRC
+
+If C++20 is available, concepts can be used to improve error messages as well as the readability of the code:
+#+BEGIN_SRC C++
+//C++20
+template<avr::io::Pin Data>
+struct sensor {
+    sensor(Data pin) { /*...*/ }
+};
+#+END_SRC C++
+
+*** Adaptability to other abstractions
+Other models to the concept ~avr::io::Pin~ can be written to adapt an existing abstraction that represents port I/O pins to components written with support to ~avrIO~. For example, an API that expects instances of the model to ~avr::io::Pin~ which is shipped with ~avrIO~ (see [[file:include/avr/io/pxn.hpp][avr::io::pxn]]) can be called with another abstraction that is alreay used in the project of the user, like integers that represents the pins of the chip in a specific board(like Arduino Micro) or pins related to a specific package type(like PDIP) of the chip. Below is a hyphotetical demo:
+#+BEGIN_SRC C++
+//C++11
+namespace avr::io::traits{
+template<>
+struct pin<int> {
+    static const uint8_t pin_addr{0x16 + 0x20};
+    
+    //precondition: (n >= 1 && n <= 3) || (n >= 5 && n <= 7)
+    uint8_t number(uint8_t n) const {
+        if (n >= 5 && n <= 7) return n - 5;
+        else if (n >= 2 && n <= 3) return n + 1;
+        return 5;
+    }
+    volatile uint8_t* pinx(int o) const
+    { return reinterpret_cast<volatile uint8_t*>(pin_addr); }
+    volatile uint8_t* ddrx(int o) const
+    { return reinterpret_cast<volatile uint8_t*>(pin_addr + 1); }
+    volatile uint8_t* portx(int o) const
+    { return reinterpret_cast<volatile uint8_t*>(pin_addr + 2); }
+};
+}
+
+template<typename Pin>
+void pulse(Pin pin) {
+    using namespace avr::io;
+    high(pin);
+    low(pin);
+}
+
+//ATtiny85 PDIP
+pulse(7); // the pin 7 in the pin configuration to PDIP is equivalent to PB2
+#+END_SRC C++
+[[file:demo/extension.cpp][demo/extension.cpp]]
+
+In the end, the designer can write an API that not only works with ~avr::io::pxn~ but also with any other model of the concept ~avr::io::Pin~. /Note, C++20 Concepts is not required here in order to allow other models./
+
+Below are the microcontrollers that are supported at the moment but it should be easy to support others:
+1. ATmega328P
+2. ATtiny85/13A
+
+*** Requires
+1. ~avr-gcc~ with at least ~-std=c++11~ (Tests with ~avr-gcc 10.2~)
+2. [optional @ C++20] If the freestanding implementation of ~libstdc++~ is used, the concepts defined by the library are better defined because of the functions provided by the header ~<concepts>~.
