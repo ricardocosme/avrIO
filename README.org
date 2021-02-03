@@ -126,3 +126,7 @@ Builds using ~avr-gcc 10.2 -std=c++20 -mmcu=attiny85 -Os~.
 *** Requires
 1. ~avr-gcc~ with at least ~-std=c++11~ (Tests with ~avr-gcc 10.2~)
 2. [optional @ C++20] If the freestanding implementation of ~libstdc++~ is used, the concepts defined by the library are better defined because of the functions provided by the header ~<concepts>~.
+
+*** Users
+***** [[https://github.com/ricardocosme/hx711][hx711]]
+
