@@ -5,9 +5,11 @@ using namespace avr::io;
 int main() {
     out(pb0); //pb0 configured as an output pin
     high(pb0); //pb0 drives high(one)
-    on(pb0, is_high(pb4)); //pb0 drives high(one) if pb4 is high or
-                           //low(zero) otherwise
+    high(pb0, is_high(pb4)); //pb0 drives high(one) if pb4 is high or
+                             //low(zero) otherwise
     low(pb0); //pb0 drives low(zero)
+    low(pb0, is_high(pb4)); //pb0 drives low(zero) if pb4 is high or
+                            //high(one) otherwise
     toggle(pb0); //toggles the pb0 state
    
     in(pb0); //pb0 configured as an input pin

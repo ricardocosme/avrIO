@@ -12,9 +12,11 @@ using namespace avr::io;
 int main() {
     out(pb0); //pb0 configured as an output pin
     high(pb0); //pb0 drives high(one)
-    on(pb0, is_high(pb4)); //pb0 drives high(one) if pb4 is high or
-                           //low(zero) otherwise
+    high(pb0, is_high(pb4)); //pb0 drives high(one) if pb4 is high or
+                             //low(zero) otherwise
     low(pb0); //pb0 drives low(zero)
+    low(pb0, is_high(pb4)); //pb0 drives low(zero) if pb4 is high or
+                            //high(one) otherwise
     toggle(pb0); //toggles the pb0 state
    
     in(pb0); //pb0 configured as an input pin
@@ -104,21 +106,26 @@ Builds using ~avr-gcc 10.2 -std=c++20 -mmcu=attiny85 -Os~.
   30:	b8 9a       	sbi	0x17, 0	; 23
   32:	c0 9a       	sbi	0x18, 0	; 24
   34:	b4 9b       	sbis	0x16, 4	; 22
-  36:	0c c0       	rjmp	.+24     	; 0x50 <__SREG__+0x11>
+  36:	0f c0       	rjmp	.+30     	; 0x56 <__SREG__+0x17>
   38:	c0 9a       	sbi	0x18, 0	; 24
   3a:	c0 98       	cbi	0x18, 0	; 24
-  3c:	b0 9a       	sbi	0x16, 0	; 22
-  3e:	c0 98       	cbi	0x18, 0	; 24
-  40:	c0 9a       	sbi	0x18, 0	; 24
-  42:	c0 98       	cbi	0x18, 0	; 24
+  3c:	b4 9b       	sbis	0x16, 4	; 22
+  3e:	0d c0       	rjmp	.+26     	; 0x5a <__SREG__+0x1b>
+  40:	c0 98       	cbi	0x18, 0	; 24
+  42:	b0 9a       	sbi	0x16, 0	; 22
   44:	c0 98       	cbi	0x18, 0	; 24
   46:	c0 9a       	sbi	0x18, 0	; 24
-  48:	86 b3       	in	r24, 0x16	; 22
-  4a:	90 e0       	ldi	r25, 0x00	; 0
-  4c:	80 e0       	ldi	r24, 0x00	; 0
-  4e:	08 95       	ret
-  50:	c0 98       	cbi	0x18, 0	; 24
-  52:	f3 cf       	rjmp	.-26     	; 0x3a <main+0xa>
+  48:	c0 98       	cbi	0x18, 0	; 24
+  4a:	c0 98       	cbi	0x18, 0	; 24
+  4c:	c0 9a       	sbi	0x18, 0	; 24
+  4e:	86 b3       	in	r24, 0x16	; 22
+  50:	90 e0       	ldi	r25, 0x00	; 0
+  52:	80 e0       	ldi	r24, 0x00	; 0
+  54:	08 95       	ret
+  56:	c0 98       	cbi	0x18, 0	; 24
+  58:	f0 cf       	rjmp	.-32     	; 0x3a <main+0xa>
+  5a:	c0 9a       	sbi	0x18, 0	; 24
+  5c:	f2 cf       	rjmp	.-28     	; 0x42 <__SREG__+0x3>
 #+END_SRC
 
 **** demo/extension.cpp

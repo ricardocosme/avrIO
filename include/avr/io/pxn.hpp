@@ -78,30 +78,30 @@ concept Pin =
 #endif
 #endif
 
-//If the pin is configured as an output pin then it drives
-//low(zero), otherwise the internal pull-up resistor is disabled.
 #if (__cplusplus > 201703L) //C++20
 template<Pin T>
 #else
 template<typename T>
 #endif
-[[gnu::always_inline]]
-inline void low(T pin) noexcept {
-    auto& portr = *traits::pin<T>{}.portx(pin);
-    portr = portr & ~(1 << traits::pin<T>{}.number(pin));
-}
-
-//If the pin is configured as an output pin then it drives
-//high(one), otherwise the internal pull-up resistor is activated.
-#if (__cplusplus > 201703L) //C++20
-template<Pin T>
-#else
-template<typename T>
-#endif
-[[gnu::always_inline]]
 inline void high(T pin) noexcept {
+   auto& portr = *traits::pin<T>{}.portx(pin);
+   portr = portr | (1 << traits::pin<T>{}.number(pin));
+ }
+
+//If the pin is configured as an output pin then it drives low(zero)
+//if 'v' is true or it drives high(one) if 'v' is false, otherwise the
+//internal pull-up resistor is disabled if 'v' is true or enabled if
+//'v' is false.
+#if (__cplusplus > 201703L) //C++20
+template<Pin T>
+#else
+template<typename T>
+#endif
+[[gnu::always_inline]]
+inline void low(T pin, bool v = true) noexcept {
     auto& portr = *traits::pin<T>{}.portx(pin);
-    portr = portr | (1 << traits::pin<T>{}.number(pin));
+    if(v) portr = portr & ~(1 << traits::pin<T>{}.number(pin));
+    else high(pin);
 }
 
 //If the pin is configured as an output pin then it drives high(one)
@@ -114,7 +114,7 @@ template<Pin T>
 template<typename T>
 #endif
 [[gnu::always_inline]]
-inline void on(T pin, bool v) noexcept {
+inline void high(T pin, bool v) noexcept {
     if(v) high(pin);
     else low(pin);
 }
