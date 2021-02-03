@@ -1,7 +1,7 @@
 ** avrIO
 C++11/17/20 components to manipulate the I/O ports of AVR-8. The purpose of this library is to raise the level of abstraction to operate I/O ports with zero-overhead in mind. It's a header only library that doesn't require any external dependency to be used, the only requirement is ~avr-gcc~ with at least C++11 support. 
 
-At the moment the work is focused in the pins of the ports and only a few microcontrollers are supported. The work is under heavily development and all type of contributions are very welcome. If you like what you see and you have interest to help, don't hesitate to open a pull request or an issue.
+At the moment the work is focused in the pins of the ports and only a few microcontrollers are supported. The work is under heavily development and all type of contributions are very welcome. If you like what you see and you have interest to help, don't hesitate to open a pull request or issue.
 
 *** Demo [Basic]
 #+BEGIN_SRC C++
@@ -27,8 +27,10 @@ int main() {
 }
 #+END_SRC
 
-*** Supporting different microcontrollers
-When writing an API it's enough to accept only one object of type ~pxn~(for example the ~pb0~ or ~pd7~ to represent a pin. This single object knows what is the microcontroller as also the memory addresses(PINx, DDRx and PORTxn) that are needed to operare the pin. For example, a constructor to instantiate an abstraction that represents a temperature sensor can be written as:
+The [[https://github.com/ricardocosme/avrIO][avrIO]] handles what is the type of the microcontroller to know what is the pin in the chip that is represented by ~avr::io::pb0~. (see [[file:include/avr/io/io.hpp][include/avr/io/io.hpp]])
+
+*** Supporting different microcontrollers and environments with the same API
+When writing an API it's enough to accept only one object of type ~pxn~ (for example the ~pb0~ or ~pd7~ to represent a pin. This single object knows what is the number of the pin(~n~ in the format ~Pxn~ or ~PORTxn~) as also the memory addresses(PINx, DDRx and PORTxn) that are needed to operate the pin. For example, a constructor to instantiate an abstraction that represents a temperature sensor can be written as:
 #+BEGIN_SRC C++
 //C++11/17
 template<typename Data>
@@ -47,7 +49,7 @@ struct sensor {
 #+END_SRC C++
 
 *** Adaptability to other abstractions
-Other models to the concept ~avr::io::Pin~ can be written to adapt an existing abstraction that represents port I/O pins to components written with support to ~avrIO~. For example, an API that expects instances of the model to ~avr::io::Pin~ which is shipped with ~avrIO~ (see [[file:include/avr/io/pxn.hpp][avr::io::pxn]]) can be called with another abstraction that is alreay used in the project of the user, like integers that represents the pins of the chip in a specific board(like Arduino Micro) or pins related to a specific package type(like PDIP) of the chip. Below is a hyphotetical demo:
+Other models to the concept ~avr::io::Pin~ can be written to adapt an existing abstraction that represents port I/O pins to components written with support to ~avrIO~. For example, an API that expects instances of the model to ~avr::io::Pin~ which is shipped with ~avrIO~ (see [[file:include/avr/io/pxn.hpp][avr::io::pxn]]) can be called with another abstraction that is already used in the project of the user, like integers that represents the pins of the chip in a specific board(like Arduino Micro) or pins related to a specific package type(like PDIP) of the chip. Below is a hypothetical demo:
 #+BEGIN_SRC C++
 //C++11
 namespace avr::io::traits{
