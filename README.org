@@ -1,14 +1,12 @@
 ** avrIO
-C++11/17/20 components to manipulate the I/O ports of AVR-8. The purpose of this library is to raise the level of abstraction to operate I/O ports with zero-overhead in mind. It's a header only library that doesn't require any external dependency to be used, the only requirement is ~avr-gcc~ with at least C++11 support. 
-
-At the moment the work is focused in the pins of the ports and only a few microcontrollers are supported. The work is under heavily development and all type of contributions are very welcome. If you like what you see and you have interest to help, don't hesitate to open a pull request or issue.
+C++11/17/20 library to manipulate I/O port pins of AVR8. The purpose of this library is to raise the level of abstraction to operate I/O ports with zero-overhead in mind. It's a header only library that doesn't require any external dependency to be used, the only requirement is ~avr-gcc~ with at least C++11 support. 
 
 *** Demos
 
 **** [[file:demo/led.cpp][demo/led.cpp]]
 
 #+BEGIN_SRC C++
-#include <avr/io/io.hpp>
+#include <avr/io.hpp>
 
 using namespace avr::io;
 
@@ -25,7 +23,7 @@ The [[https://github.com/ricardocosme/avrIO][avrIO]] handles what is the type of
 **** [[file:demo/c++20/api.cpp][demo/c++20/api.cpp]]
 
 #+BEGIN_SRC C++
-#include <avr/io/io.hpp>
+#include <avr/io.hpp>
 
 namespace dev {
 template<avr::io::Pin Pin>
@@ -162,3 +160,5 @@ Builds using ~avr-gcc 10.2 -mmcu=attiny85 -Os~.
 *** Projects using the library
 **** [[https://github.com/ricardocosme/hx711][hx711]]
 
+*** Contributions
+The work is under heavily development and all type of contributions are very welcome. If you like what you see and you have interest to help, don't hesitate to open a pull request or issue.

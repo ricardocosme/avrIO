@@ -1,6 +1,4 @@
-#include <stdint.h>
-
-#include <avr/io/io.hpp>
+#include <avr/io.hpp>
 
 #if !(defined(__AVR_ATtiny85__) || defined(__AVR_ATtiny13A__))
 #error "This demo is only supported to ATtiny85/13A"
