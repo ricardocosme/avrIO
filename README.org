@@ -3,36 +3,52 @@ C++11/17/20 components to manipulate the I/O ports of AVR-8. The purpose of this
 
 At the moment the work is focused in the pins of the ports and only a few microcontrollers are supported. The work is under heavily development and all type of contributions are very welcome. If you like what you see and you have interest to help, don't hesitate to open a pull request or issue.
 
-*** Demo [Basic]
+*** Demos
+
+**** [[file:demo/led.cpp][demo/led.cpp]]
+
 #+BEGIN_SRC C++
 #include <avr/io/io.hpp>
 
 using namespace avr::io;
 
 int main() {
-    out(pb0); //pb0 configured as an output pin
-    high(pb0); //pb0 drives high(one)
-    high(pb0, is_high(pb4)); //pb0 drives high(one) if pb4 is high or
-                             //low(zero) otherwise
-    low(pb0); //pb0 drives low(zero)
-    low(pb0, is_high(pb4)); //pb0 drives low(zero) if pb4 is high or
-                            //high(one) otherwise
-    toggle(pb0); //toggles the pb0 state
-   
-    in(pb0); //pb0 configured as an input pin
-    high(pb0); //activates the pull-up resistor from the pb0
-    low(pb0); //deactivates the pull-up resistor from the pb0
-
-    in(pb0, pullup); //pb0 configured as in input pin with the pull-up
-                     //resistor activated
-  
-    //checks if pb0's state is high(one)
-    auto v = is_high(pb0);
+    Pb0 led{mode::output};
+    Pb3 push_btn{mode::pullup};
+    
+    while(true)
+        led.high(!push_btn.is_high());
 }
 #+END_SRC
-[[file:demo/basic.cpp][demo/basic.cpp]]
 
-The [[https://github.com/ricardocosme/avrIO][avrIO]] handles what is the type of the microcontroller to know what is the pin in the chip that is represented by ~avr::io::pb0~. (see [[file:include/avr/io/io.hpp][include/avr/io/io.hpp]])
+The [[https://github.com/ricardocosme/avrIO][avrIO]] handles what is the type of the microcontroller to know what is the pin in the chip that is represented by ~avr::io::Pb0~ or ~avr::io::Pb3~. (see [[file:include/avr/io/io.hpp][include/avr/io/io.hpp]])
+
+**** [[file:demo/api.cpp][demo/api.cpp]]
+
+#+BEGIN_SRC C++
+#include <avr/io/io.hpp>
+
+using namespace avr::io;
+
+namespace dev {
+template<typename Pin>
+struct led {
+    const Pin pin;
+    led(Pin ppin) : pin(ppin) { out(pin); };
+    void on(bool v = true) { high(pin, v); }
+};
+} //namespace dev
+
+int main() {
+    dev::led led{pb0};
+    Pb3 push_btn{mode::pullup};
+    
+    while(true)
+        led.on(!push_btn.is_high());
+}
+#+END_SRC
+
+APIs can be written accepting pins without worries about the model which is used. The only requirement is that the type of the pin must be a model of the the concept ~avr::io::Pin~. Above we are using the API ~dev::led~ using a global object ~avr::io::pb0~ which is an instance of the model ~avr::io::pxn~. Note that we can also instantiate the abstraction with something more verbose like ~dev::led led{Pb0{}}~ ,and , the implementation of the API is using free functions like ~high(pin)~ instead of ~pin.high()~ because the model can't always be a class, it can be for example an integer, like that ones that are used by ~avr-libc~ through macros of the type ~PXN~. 
 
 *** Supporting different microcontrollers and environments with the same API
 When writing an API it's enough to accept only one object of type ~pxn~ (for example the ~pb0~ or ~pd7~ to represent a pin. This single object knows what is the number of the pin(~n~ in the format ~Pxn~ or ~PORTxn~) as also the memory addresses(PINx, DDRx and PORTxn) that are needed to operate the pin. For example, a constructor to instantiate an abstraction that represents a temperature sensor can be written as:
@@ -100,32 +116,32 @@ The goal here is to compare the code generated using [[https://github.com/ricard
 
 Builds using ~avr-gcc 10.2 -std=c++20 -mmcu=attiny85 -Os~.
 
-**** demo/basic.cpp
+**** demo/led.cpp
 #+BEGIN_SRC
 00000030 <main>:
-  30:	b8 9a       	sbi	0x17, 0	; 23
-  32:	c0 9a       	sbi	0x18, 0	; 24
-  34:	b4 9b       	sbis	0x16, 4	; 22
-  36:	0f c0       	rjmp	.+30     	; 0x56 <__SREG__+0x17>
-  38:	c0 9a       	sbi	0x18, 0	; 24
-  3a:	c0 98       	cbi	0x18, 0	; 24
-  3c:	b4 9b       	sbis	0x16, 4	; 22
-  3e:	0d c0       	rjmp	.+26     	; 0x5a <__SREG__+0x1b>
+  30:	c0 98       	cbi	0x18, 0	; 24
+  32:	b8 9a       	sbi	0x17, 0	; 23
+  34:	bb 98       	cbi	0x17, 3	; 23
+  36:	c3 9a       	sbi	0x18, 3	; 24
+  38:	b3 99       	sbic	0x16, 3	; 22
+  3a:	02 c0       	rjmp	.+4      	; 0x40 <__SREG__+0x1>
+  3c:	c0 9a       	sbi	0x18, 0	; 24
+  3e:	fc cf       	rjmp	.-8      	; 0x38 <main+0x8>
   40:	c0 98       	cbi	0x18, 0	; 24
-  42:	b0 9a       	sbi	0x16, 0	; 22
-  44:	b8 98       	cbi	0x17, 0	; 23
-  46:	c0 9a       	sbi	0x18, 0	; 24
-  48:	c0 98       	cbi	0x18, 0	; 24
-  4a:	b8 98       	cbi	0x17, 0	; 23
-  4c:	c0 9a       	sbi	0x18, 0	; 24
-  4e:	86 b3       	in	r24, 0x16	; 22
-  50:	90 e0       	ldi	r25, 0x00	; 0
-  52:	80 e0       	ldi	r24, 0x00	; 0
-  54:	08 95       	ret
-  56:	c0 98       	cbi	0x18, 0	; 24
-  58:	f0 cf       	rjmp	.-32     	; 0x3a <main+0xa>
-  5a:	c0 9a       	sbi	0x18, 0	; 24
-  5c:	f2 cf       	rjmp	.-28     	; 0x42 <__SREG__+0x3>
+  42:	fa cf       	rjmp	.-12     	; 0x38 <main+0x8>
+#+END_SRC
+
+**** demo/api.cpp
+#+BEGIN_SRC
+  30:	b8 9a       	sbi	0x17, 0	; 23
+  32:	bb 98       	cbi	0x17, 3	; 23
+  34:	c3 9a       	sbi	0x18, 3	; 24
+  36:	b3 99       	sbic	0x16, 3	; 22
+  38:	02 c0       	rjmp	.+4      	; 0x3e <__SP_H__>
+  3a:	c0 9a       	sbi	0x18, 0	; 24
+  3c:	fc cf       	rjmp	.-8      	; 0x36 <main+0x6>
+  3e:	c0 98       	cbi	0x18, 0	; 24
+  40:	fa cf       	rjmp	.-12     	; 0x36 <main+0x6>
 #+END_SRC
 
 **** demo/extension.cpp

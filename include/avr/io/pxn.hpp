@@ -24,7 +24,7 @@ struct pxn_impl {
 
     pxn_impl() = default;
 
-#if (__cplusplus >= 201703L)
+#if (__cplusplus >= 201402L)
     constexpr
 #endif
     explicit pxn_impl(mode m) noexcept {
