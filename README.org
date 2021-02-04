@@ -23,21 +23,21 @@ int main() {
 
 The [[https://github.com/ricardocosme/avrIO][avrIO]] handles what is the type of the microcontroller to know what is the pin in the chip that is represented by ~avr::io::Pb0~ or ~avr::io::Pb3~. (see [[file:include/avr/io/io.hpp][include/avr/io/io.hpp]])
 
-**** [[file:demo/api.cpp][demo/api.cpp]]
+**** [[file:demo/c++20/api.cpp][demo/c++20/api.cpp]]
 
 #+BEGIN_SRC C++
 #include <avr/io/io.hpp>
 
-using namespace avr::io;
-
 namespace dev {
-template<typename Pin>
+template<avr::io::Pin Pin>
 struct led {
     const Pin pin;
-    led(Pin ppin) : pin(ppin) { out(pin); };
-    void on(bool v = true) { high(pin, v); }
+    led(Pin ppin) : pin(ppin) { avr::io::out(pin); };
+    void on(bool v = true) { avr::io::high(pin, v); }
 };
 } //namespace dev
+
+using namespace avr::io;
 
 int main() {
     dev::led led{pb0};
@@ -131,8 +131,9 @@ Builds using ~avr-gcc 10.2 -std=c++20 -mmcu=attiny85 -Os~.
   42:	fa cf       	rjmp	.-12     	; 0x38 <main+0x8>
 #+END_SRC
 
-**** demo/api.cpp
+**** demo/c++20/api.cpp
 #+BEGIN_SRC
+00000030 <main>:
   30:	b8 9a       	sbi	0x17, 0	; 23
   32:	bb 98       	cbi	0x17, 3	; 23
   34:	c3 9a       	sbi	0x18, 3	; 24
