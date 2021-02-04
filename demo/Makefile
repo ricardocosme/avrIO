@@ -11,7 +11,7 @@ OBJDUMP=avr-objdump
 INCLUDE=-I../include
 CXXFLAGS=-std=$(STD_CXX) -g -mmcu=$(MCU_TARGET) -Wall -Wno-unused-variable -Wno-unused-but-set-variable $(OPTIMIZE) -DF_CPU=$(F_CPU) $(INCLUDE)
 
-demos = api led extension
+demos = api led
 
 all: $(demos:%=%.elf) $(demos:%=%.lst) $(demos:%=%.s)
 

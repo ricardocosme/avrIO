@@ -1,8 +1,6 @@
 ** avrIO
 C++11/17/20 library to manipulate I/O port pins of AVR8. The purpose of this library is to raise the level of abstraction to operate I/O ports with zero-overhead in mind. It's a header only library that doesn't require any external dependency to be used, the only requirement is ~avr-gcc~ with at least C++11 support. 
 
-*** Demos
-
 **** [[file:demo/led.cpp][demo/led.cpp]]
 
 #+BEGIN_SRC C++
@@ -18,23 +16,23 @@ int main() {
 }
 #+END_SRC
 
-The [[https://github.com/ricardocosme/avrIO][avrIO]] handles what is the type of the microcontroller to know what is the pin in the chip that is represented by ~avr::io::Pb0~ or ~avr::io::Pb3~. (see [[file:include/avr/io/io.hpp][include/avr/io/io.hpp]])
+The [[https://github.com/ricardocosme/avrIO][avrIO]] handles what is the type of the microcontroller to know what is the pin in the chip that is represented by ~avr::io::Pb0~ or ~avr::io::Pb3~ (see [[file:include/avr/io/io.hpp][include/avr/io/io.hpp]]). 
 
 **** [[file:demo/c++20/api.cpp][demo/c++20/api.cpp]]
 
 #+BEGIN_SRC C++
 #include <avr/io.hpp>
 
+using namespace avr::io;
+
 namespace dev {
 template<avr::io::Pin Pin>
 struct led {
     const Pin pin;
-    led(Pin ppin) : pin(ppin) { avr::io::out(pin); };
-    void on(bool v = true) { avr::io::high(pin, v); }
+    led(Pin ppin) : pin(ppin) { out(pin); };
+    void on(bool v = true) { high(pin, v); }
 };
 } //namespace dev
-
-using namespace avr::io;
 
 int main() {
     dev::led led{pb0};
@@ -44,64 +42,79 @@ int main() {
 }
 #+END_SRC
 
-APIs can be written accepting pins without worries about the model which is used. The only requirement is that the type of the pin must be a model of the the concept ~avr::io::Pin~. Above we are using the API ~dev::led~ using a global object ~avr::io::pb0~ which is an instance of the model ~avr::io::pxn~. Note that we can also instantiate the abstraction with something more verbose like ~dev::led led{Pb0{}}~ ,and , the implementation of the API is using free functions like ~high(pin)~ instead of ~pin.high()~ because the model can't always be a class, it can be for example an integer, like that ones that are used by ~avr-libc~ through macros of the type ~PXN~. 
+The version above has support to C++20 Concepts and the template parameter of the class template ~led~ is implicitly deducted. There is a version [[file:demo/api.cpp][demo/api.cpp]] with support to C++11. 
 
-There is a version [[file:demo/api.cpp][demo/api.cpp]] with support to C++11;
+This library can help the designer to offer an API that needs to handle pins. It can receive the information using a flexible and minimal representation. The argument ~Pin~ can be anything that models the concept ~avr::io::Pin~ and only one object can represent the location of the pin. There is no need, for example, to ask for the registers that are related to the pin in question.
 
-*** Supporting different microcontrollers and environments with the same API
-When writing an API it's enough to accept only one object of type ~pxn~ (for example the ~pb0~ or ~pd7~ to represent a pin. This single object knows what is the number of the pin(~n~ in the format ~Pxn~ or ~PORTxn~) as also the memory addresses(PINx, DDRx and PORTxn) that are needed to operate the pin. For example, a constructor to instantiate an abstraction that represents a temperature sensor can be written as:
-#+BEGIN_SRC C++
-//C++11/17
-template<typename Data>
-struct sensor {
-    sensor(Data pin) { /*...*/ }
-};
-#+END_SRC
-
-If C++20 is available, concepts can be used to improve error messages as well as the readability of the code:
-#+BEGIN_SRC C++
-//C++20
-template<avr::io::Pin Data>
-struct sensor {
-    sensor(Data pin) { /*...*/ }
-};
-#+END_SRC C++
+Above we are using the API ~dev::led~ using a global object ~avr::io::pb0~ which is an instance of the model ~avr::io::pxn~ that modes the concept ~avr::io::Pin~. Note that we can also instantiate the abstraction with something more verbose like ~dev::led led{Pb0{}}~ , but in this case this doesn't make sense because all we want is to receive the pin without any initialization about your mode of operation, like if the pin is operating as an input or output one. The implementation of the API is using free functions like ~high(pin)~ instead of ~pin.high()~ because the model can't always be a class, it can be for example an integer, like that ones that are used by ~avr-libc~ through macros of the type ~PXN~. 
 
 *** Adaptability to other abstractions
-Other models to the concept ~avr::io::Pin~ can be written to adapt an existing abstraction that represents port I/O pins to components written with support to ~avrIO~. For example, an API that expects instances of the model to ~avr::io::Pin~ which is shipped with ~avrIO~ (see [[file:include/avr/io/pxn.hpp][avr::io::pxn]]) can be called with another abstraction that is already used in the project of the user, like integers that represents the pins of the chip in a specific board(like Arduino Micro) or pins related to a specific package type(like PDIP) of the chip. Below is a hypothetical demo:
+Other models to the concept ~avr::io::Pin~ can be written to adapt an existing abstraction that represents port I/O pins to components written using ~avrIO~. For example, an API can be called with the instance ~avr::io::pc1~ but it also can be called with another abstraction that is already used in the project of the user to represent a pin, like integers that represents the pins of the chip in a specific board(like Arduino Micro) or pins related to a specific package type(like PDIP) of the chip. In order to allow this, the user of the API should extend the ~avrIO~ only once to adapt the desired abstraction to the concept ~avr::io::Pin~. Below is a hypothetical demo of a program that must use an API written in ~avrIO~ but using an interger that represents the pin of an ATtiny85 in the PDIP package form:
+[[file:demo/c++20/extension.cpp][demo/c++20/extension.cpp]]
 #+BEGIN_SRC C++
-//C++11
+#include <avr/io.hpp>
+
+#if !(defined(__AVR_ATtiny85__) || defined(__AVR_ATtiny13A__))
+#error "This demo is only supported to ATtiny85/13A"
+#endif
+
+// This demo shows a hypothetical extension to model the ATtiny85 port
+// I/O pins using the numbers of the pins in PDIP package. There isn't
+// any intention here to claim that this particular usage is a good
+// ideia, the only purpose here is to show how flexible is the
+// extension mechanism using a fundamental type as 'int' as a
+// representation to a pin.
+//
+// We want to map the following:
+// 1 -> PB5
+// 2 -> PB3
+// 3 -> PB4
+// 5 -> PB0
+// 6 -> PB1
+// 7 -> PB2
+//
 namespace avr::io::traits{
 template<>
 struct pin<int> {
     static const uint8_t pin_addr{0x16 + 0x20};
     
     //precondition: (n >= 1 && n <= 3) || (n >= 5 && n <= 7)
+    [[gnu::always_inline]]
     uint8_t number(uint8_t n) const {
         if (n >= 5 && n <= 7) return n - 5;
         else if (n >= 2 && n <= 3) return n + 1;
         return 5;
     }
+    [[gnu::always_inline]]
     volatile uint8_t* pinx(int o) const
     { return reinterpret_cast<volatile uint8_t*>(pin_addr); }
+    [[gnu::always_inline]]
     volatile uint8_t* ddrx(int o) const
     { return reinterpret_cast<volatile uint8_t*>(pin_addr + 1); }
+    [[gnu::always_inline]]
     volatile uint8_t* portx(int o) const
     { return reinterpret_cast<volatile uint8_t*>(pin_addr + 2); }
 };
 }
 
-template<typename Pin>
-void pulse(Pin pin) {
-    using namespace avr::io;
-    high(pin);
-    low(pin);
-}
+using namespace avr::io;
 
-//ATtiny85 PDIP
-pulse(7); // the pin 7 in the pin configuration to PDIP is equivalent to PB2
+namespace dev {
+template<avr::io::Pin Pin>
+struct led {
+    const Pin pin;
+    led(Pin ppin) : pin(ppin) { out(pin); };
+    void on(bool v = true) { high(pin, v); }
+};
+} //namespace dev
+
+int main() {
+    dev::led led{5};
+    in(2, pullup);
+
+    while(true) led.on(is_low(2));
+}
 #+END_SRC C++
-[[file:demo/extension.cpp][demo/extension.cpp]]
 
 In the end, the designer can write an API that not only works with ~avr::io::pxn~ but also with any other model of the concept ~avr::io::Pin~. /Note, C++20 Concepts is not required here in order to allow other models./
 
@@ -143,14 +156,18 @@ Builds using ~avr-gcc 10.2 -mmcu=attiny85 -Os~.
   32:	fa cf       	rjmp	.-12     	; 0x28 <main+0x6>
 #+END_SRC
 
-**** demo/extension.cpp  [-std=c++11] 
+**** demo/c++20/extension.cpp  [-std=c++20] 
 #+BEGIN_SRC
-00000022 <main>:
-  22:	c2 9a       	sbi	0x18, 2	; 24
-  24:	c2 98       	cbi	0x18, 2	; 24
-  26:	90 e0       	ldi	r25, 0x00	; 0
-  28:	80 e0       	ldi	r24, 0x00	; 0
-  2a:	08 95       	ret
+00000030 <main>:
+  30:	b8 9a       	sbi	0x17, 0	; 23
+  32:	bb 98       	cbi	0x17, 3	; 23
+  34:	c3 9a       	sbi	0x18, 3	; 24
+  36:	b3 99       	sbic	0x16, 3	; 22
+  38:	02 c0       	rjmp	.+4      	; 0x3e <__SP_H__>
+  3a:	c0 9a       	sbi	0x18, 0	; 24
+  3c:	fc cf       	rjmp	.-8      	; 0x36 <main+0x6>
+  3e:	c0 98       	cbi	0x18, 0	; 24
+  40:	fa cf       	rjmp	.-12     	; 0x36 <main+0x6>
 #+END_SRC
 
 *** Requires

@@ -110,4 +110,14 @@ inline bool is_high(T pin) noexcept {
     return *traits::pin<T>{}.pinx(pin) & (1 << traits::pin<T>{}.number(pin));
 }
 
+//Returns true if the pin state is low(=0)
+#if (__cplusplus > 201703L) //C++20
+template<Pin T>
+#else
+template<typename T>
+#endif
+[[gnu::always_inline]]
+inline bool is_low(T pin) noexcept
+{ return !is_high(pin); }
+
 }}

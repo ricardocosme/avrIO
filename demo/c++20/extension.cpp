@@ -25,27 +25,38 @@ struct pin<int> {
     static const uint8_t pin_addr{0x16 + 0x20};
     
     //precondition: (n >= 1 && n <= 3) || (n >= 5 && n <= 7)
+    [[gnu::always_inline]]
     uint8_t number(uint8_t n) const {
         if (n >= 5 && n <= 7) return n - 5;
         else if (n >= 2 && n <= 3) return n + 1;
         return 5;
     }
+    [[gnu::always_inline]]
     volatile uint8_t* pinx(int o) const
     { return reinterpret_cast<volatile uint8_t*>(pin_addr); }
+    [[gnu::always_inline]]
     volatile uint8_t* ddrx(int o) const
     { return reinterpret_cast<volatile uint8_t*>(pin_addr + 1); }
+    [[gnu::always_inline]]
     volatile uint8_t* portx(int o) const
     { return reinterpret_cast<volatile uint8_t*>(pin_addr + 2); }
 };
 }
 
-template<typename Pin>
-void pulse(Pin pin) {
-    using namespace avr::io;
-    high(pin);
-    low(pin);
-}
+using namespace avr::io;
+
+namespace dev {
+template<avr::io::Pin Pin>
+struct led {
+    const Pin pin;
+    led(Pin ppin) : pin(ppin) { out(pin); };
+    void on(bool v = true) { high(pin, v); }
+};
+} //namespace dev
 
 int main() {
-    pulse(7); // positive pulse at PB2
+    dev::led led{5};
+    in(2, pullup);
+
+    while(true) led.on(is_low(2));
 }
