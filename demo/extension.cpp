@@ -2,8 +2,8 @@
 
 #include <avr/io/io.hpp>
 
-#if !defined(__AVR_ATtiny85__)
-#error "This demo is only supported to ATtiny85"
+#if !(defined(__AVR_ATtiny85__) || defined(__AVR_ATtiny13A__))
+#error "This demo is only supported to ATtiny85/13A"
 #endif
 
 // This demo shows a hypothetical extension to model the ATtiny85 port

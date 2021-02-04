@@ -1,23 +1,13 @@
 #pragma once
 
 #include "avr/io/concepts.hpp"
-#include "avr/io/detail/global.hpp"
+#include "avr/io/tag.hpp"
 #include "avr/io/traits.hpp"
 
 // Basic functions to operate an I/O pin that models the concept
 // avr::io::Pin.
 
 namespace avr { namespace io {
-
-//Tag to represent the activation of the pull-up resistor of a pin.
-struct pullup_t{};
-#if (__cplusplus >= 201703L) //C++17/20
-constexpr inline pullup_t pullup;
-#else
-namespace {
-constexpr auto& pullup{detail::global<pullup_t>::instance};
-} //anonymous namespace    
-#endif
 
 #if (__cplusplus > 201703L) //C++20
 template<Pin T>

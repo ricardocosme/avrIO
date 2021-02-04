@@ -13,8 +13,7 @@ using namespace avr::io;
 
 int main() {
     dev::led led{pb0};
-    Pb3 push_btn{mode::pullup};
+    Pb3 sw{pullup};
     
-    while(true)
-        led.on(!push_btn.is_high());
+    while(true) led.on(sw.is_low());
 }

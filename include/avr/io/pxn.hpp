@@ -1,17 +1,13 @@
 #pragma once
 
+#include "avr/io/detail/macros.hpp"
 #include "avr/io/detail/to_addr.hpp"
 #include "avr/io/functions.hpp"
+#include "avr/io/tag.hpp"
 
 #include <stdint.h>
 
 namespace avr { namespace io {
-
-enum class mode {
-    input,
-    pullup, //input with pullup resistor enabled
-    output,
-};
 
 // Represents a PORTxn (Pxn)
 template<
@@ -24,19 +20,25 @@ struct pxn_impl {
 
     pxn_impl() = default;
 
-#if (__cplusplus >= 201402L)
-    constexpr
-#endif
-    explicit pxn_impl(mode m) noexcept {
-        if(m == mode::input) {
-            in();
-            low();
-        } else if(m == mode::pullup) {
-            in(pullup);
-        } else if(m == mode::output) {
-            low();
-            out();
-        }
+    //Initializes the pin with the input mode and without the pull-up
+    //resistor deactivated.
+    AVR_IO_CONSTEXPR_CTOR
+    explicit pxn_impl(input_t m) noexcept {
+        in();
+        low();
+    }
+
+    //Initializes the pin with the input mode and with the pull-up
+    //resistor activated, i.e. the pullup mode.
+    AVR_IO_CONSTEXPR_CTOR
+    explicit pxn_impl(pullup_t m) noexcept
+    { in(pullup); }
+
+    //Initializes the pin with the output mode.
+    AVR_IO_CONSTEXPR_CTOR
+    explicit pxn_impl(output_t m) noexcept {
+        low();
+        out();
     }
     
     //Returns a reference to the Port Input Pins (PINx)
@@ -79,6 +81,9 @@ struct pxn_impl {
     static bool is_high() noexcept
     { return avr::io::is_high(pxn_impl{}); }
 
+    static bool is_low() noexcept
+    { return !is_high(); }
+    
     operator bool() noexcept
     { return is_high(); }
 };

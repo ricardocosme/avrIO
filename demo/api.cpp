@@ -1,20 +1,19 @@
 #include <avr/io/io.hpp>
 
-using namespace avr::io;
-
 namespace dev {
 template<typename Pin>
 struct led {
     const Pin pin;
-    led(Pin ppin) : pin(ppin) { out(pin); };
-    void on(bool v = true) { high(pin, v); }
+    led(Pin ppin) : pin(ppin) { avr::io::out(pin); };
+    void on(bool v = true) { avr::io::high(pin, v); }
 };
 } //namespace dev
 
+using namespace avr::io;
+
 int main() {
     dev::led<Pb0> led{pb0};
-    Pb3 push_btn{mode::pullup};
+    Pb3 sw{pullup};
     
-    while(true)
-        led.on(!push_btn.is_high());
+    while(true) led.on(sw.is_low());
 }
