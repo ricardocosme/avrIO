@@ -5,7 +5,7 @@ using namespace avr::io;
 namespace dev {
 template<typename Pin>
 struct led {
-    const Pin pin;
+    Pin pin;
     led(Pin ppin) : pin(ppin) { out(pin); };
     void on(bool v = true) { high(pin, v); }
 };

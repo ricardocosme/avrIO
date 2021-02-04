@@ -36,10 +36,10 @@ struct pin<int> {
     { return reinterpret_cast<volatile uint8_t*>(pin_addr); }
     [[gnu::always_inline]]
     volatile uint8_t* ddrx(int o) const
-    { return reinterpret_cast<volatile uint8_t*>(pin_addr + 1); }
+    { return pinx(o) + 1; }
     [[gnu::always_inline]]
     volatile uint8_t* portx(int o) const
-    { return reinterpret_cast<volatile uint8_t*>(pin_addr + 2); }
+    { return pinx(o) + 2; }
 };
 }
 
@@ -48,7 +48,7 @@ using namespace avr::io;
 namespace dev {
 template<avr::io::Pin Pin>
 struct led {
-    const Pin pin;
+    Pin pin;
     led(Pin ppin) : pin(ppin) { out(pin); };
     void on(bool v = true) { high(pin, v); }
 };
