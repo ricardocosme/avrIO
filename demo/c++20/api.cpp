@@ -2,17 +2,15 @@
 
 using namespace avr::io;
 
-namespace dev {
 template<avr::io::Pin Pin>
-struct led {
+struct led_t {
     Pin pin;
-    led(Pin ppin) : pin(ppin) { out(pin); };
+    led_t(Pin ppin) : pin(ppin) { out(pin); };
     void on(bool v = true) { high(pin, v); }
 };
-} //namespace dev
 
 int main() {
-    dev::led led{pb0};
+    led_t led{pb0};
     Pb3 sw{pullup};
     
     while(true) led.on(sw.is_low());

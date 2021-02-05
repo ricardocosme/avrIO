@@ -25,35 +25,33 @@ struct avr::io::traits::pin<int> {
     
     //precondition: (n >= 1 && n <= 3) || (n >= 5 && n <= 7)
     [[gnu::always_inline]]
-    uint8_t number(uint8_t n) const {
+    auto number(uint8_t n) const {
         if (n >= 5 && n <= 7) return n - 5;
         else if (n >= 2 && n <= 3) return n + 1;
         return 5;
     }
     [[gnu::always_inline]]
-    volatile uint8_t* pinx(int o) const
+    auto pinx(int o) const
     { return reinterpret_cast<volatile uint8_t*>(pin_addr); }
     [[gnu::always_inline]]
-    volatile uint8_t* ddrx(int o) const
+    auto ddrx(int o) const
     { return pinx(o) + 1; }
     [[gnu::always_inline]]
-    volatile uint8_t* portx(int o) const
+    auto portx(int o) const
     { return pinx(o) + 2; }
 };
 
 using namespace avr::io;
 
-namespace dev {
 template<avr::io::Pin Pin>
-struct led {
+struct led_t {
     Pin pin;
-    led(Pin ppin) : pin(ppin) { out(pin); };
+    led_t(Pin ppin) : pin(ppin) { out(pin); };
     void on(bool v = true) { high(pin, v); }
 };
-} //namespace dev
 
 int main() {
-    dev::led led{5};
+    led_t led{5};
     in(2, pullup);
 
     while(true) led.on(is_low(2));
