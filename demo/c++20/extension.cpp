@@ -19,9 +19,8 @@
 // 6 -> PB1
 // 7 -> PB2
 //
-namespace avr::io::traits{
 template<>
-struct pin<int> {
+struct avr::io::traits::pin<int> {
     static const uint8_t pin_addr{0x16 + 0x20};
     
     //precondition: (n >= 1 && n <= 3) || (n >= 5 && n <= 7)
@@ -41,7 +40,6 @@ struct pin<int> {
     volatile uint8_t* portx(int o) const
     { return pinx(o) + 2; }
 };
-}
 
 using namespace avr::io;
 
