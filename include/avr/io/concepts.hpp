@@ -10,10 +10,10 @@ namespace avr { namespace io {
 
 #if (__cplusplus > 201703L)  //C++20
 
-// The number that identifies the pin
+// The bit number that identifies the pin in the port.
 //
-// It's the number `n` in the form Pxn.
-// The number must satisfies: n >= 0 && n <= 7.
+// It's the number `n` in the general form Pxn or PORTxn.
+// The number `n` must satisfies: n >= 0 && n <= 7.
 //
 template<typename Pin>
 consteval auto pin_number(Pin o)
@@ -34,11 +34,12 @@ template<typename Pin>
 consteval auto pin_PORTx(Pin o)
 { return traits::pin<Pin>{}.portx(o); }
 
-// Concept to a single pin of an I/O port
+// Concept to a single pin of an I/O port (Pxn or PORTxn)
 //
-// One single pin has:
-//  1. An unsigned integer `n` related to the form Pxn. The number
-//     must satisfies: n >= 0 && n <= 7.
+// One single pin is represented by:
+
+//  1. An unsigned integer with is the number `n` in the general form
+//     Pxn or PORTxn. The number must satisfies: n >= 0 && n <= 7.
 //  2. An 8bit memory address to the register PINx.
 //  3. An 8bit memory address to the register DDRx.
 //  4. An 8bit memory address to the register PORTx.

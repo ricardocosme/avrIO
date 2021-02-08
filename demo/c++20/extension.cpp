@@ -25,19 +25,19 @@ struct avr::io::traits::pin<int> {
     
     //precondition: (n >= 1 && n <= 3) || (n >= 5 && n <= 7)
     [[gnu::always_inline]]
-    auto number(uint8_t n) const {
+    auto number(uint8_t n) const noexcept {
         if (n >= 5 && n <= 7) return n - 5;
         else if (n >= 2 && n <= 3) return n + 1;
         return 5;
     }
     [[gnu::always_inline]]
-    auto pinx(int o) const
+    auto pinx(int o) const noexcept 
     { return reinterpret_cast<volatile uint8_t*>(pin_addr); }
     [[gnu::always_inline]]
-    auto ddrx(int o) const
+    auto ddrx(int o) const noexcept 
     { return pinx(o) + 1; }
     [[gnu::always_inline]]
-    auto portx(int o) const
+    auto portx(int o) const noexcept 
     { return pinx(o) + 2; }
 };
 
