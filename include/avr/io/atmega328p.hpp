@@ -5,19 +5,26 @@
 
 namespace avr { namespace io {
 
-// Port B
-//
-// The following global object are defined to represent each pin of the
-// I/O port B: pb0, pb1, pb2, pb3, pb4, pb5, pb6 and pb7.
-//
-// The port can also be accessed through the respective types, which
-// are: Pb0, Pb1, Pb2, Pb3, Pb4, Pb5, Pb6 and Pb7.
-//
-// See pxn.hpp to know to use the abstraction.
-//
+/** Port B
+
+Implementation of the class template `pxn<n>` at
+`avr/io/pxn.hpp`. Basic functions to operate port pins at
+`avr/io/functions.hpp`.
+*/
 template<uint8_t n>
 using portBn = pxn<0x03 + 0x20, n>;
 
+/** Types to represent each port pin.
+
+Besides the natural purpose of a type, like the usage of type traits
+or something that is inherent to it, the types below are useful too to
+instantiate objects that represents port pin but using the constructor
+of the type to define the mode of operation of the pin, for example,
+an object `pb3` can be an instantiation of `Pb3` that configures the
+port pin to be an input port with the pull-up resistor activated:
+
+avr::io::Pb3 pb3{avr::io::pullup};
+*/
 using Pb0 = portBn<0>;
 using Pb1 = portBn<1>;
 using Pb2 = portBn<2>;
@@ -27,6 +34,12 @@ using Pb5 = portBn<5>;
 using Pb6 = portBn<6>;
 using Pb7 = portBn<7>;
 
+/** Global objects to represent each port pin.
+
+These are intended to be used when the port pin doesn't need any
+initialization, instead of something like `avr::io::Pb0 pb0{}`, a short
+hand notation can be used: `avr::io::pb0`.
+*/
 #if (__cplusplus >= 201703L)
 inline constexpr Pb0 pb0;
 inline constexpr Pb1 pb1;
@@ -49,16 +62,10 @@ constexpr auto& pb7{detail::global<Pb7>::instance};
 } //anonymous namespace
 #endif
 
-// Port C
-//
-// The following global object are defined to represent each pin of the
-// I/O port C: pc0, pc1, pc2, pc3, pc4, pc5 and pc6.
-//
-// The port can also be accessed through the respective types, which
-// are: Pc0, Pc1, Pc2, Pc3, Pc4, Pc5 and Pc6.
-//
-// See pxn.hpp to know to use the abstraction.
-//
+/** Port C
+
+The same documentation to Port B applies here, see above.
+*/
 template<uint8_t n>
 using portCn = pxn<0x06 + 0x20, n>;
 
@@ -90,16 +97,10 @@ constexpr auto& pc6{detail::global<Pc6>::instance};
 } //anonymous namespace
 #endif
 
-// Port D
-//
-// The following global object are defined to represent each pin of the
-// I/O port D: pd0, pd1, pd2, pd3, pd4, pd5 and pd6.
-//
-// The port can also be accessed through the respective types, which
-// are: Pd0, Pd1, Pd2, Pd3, Pd4, Pd5 and Pd6.
-//
-// See pxn.hpp to know to use the abstraction.
-//
+/** Port D
+
+The same documentation to Port B applies here, see above.
+*/
 template<uint8_t n>
 using portDn = pxn<0x09 + 0x20, n>;
 

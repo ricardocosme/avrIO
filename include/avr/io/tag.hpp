@@ -2,18 +2,19 @@
 
 #include "avr/io/detail/global.hpp"
 
-// Tags to do tag dispatching
+/** Tags to do tag dispatching. */
 
 namespace avr { namespace io {
 
-//Tag to represent the activation of the pull-up resistor of a pin.
+/** Tag to represent the input mode with the pull-up resistor
+ * activated. */
 struct pullup_t{};
 
-//Tag to represent the input mode without the the pull-up resistor of
-//a pin activated.
+/** Tag to represent the input mode with the pull-up resistor
+ * deactivated. */
 struct input_t{};
 
-//Tag to represent the output mode
+/** Tag to represent the output mode. */
 struct output_t{};
 
 #if (__cplusplus >= 201703L) //C++17/20

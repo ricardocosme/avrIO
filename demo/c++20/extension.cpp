@@ -46,8 +46,11 @@ using namespace avr::io;
 template<avr::io::Pin Pin>
 struct led_t {
     Pin pin;
+    
     led_t(Pin ppin) : pin(ppin) { out(pin); };
-    void on(bool v = true) { high(pin, v); }
+    
+    [[gnu::always_inline]]
+    void on(bool v = true) const noexcept { high(pin, v); }
 };
 
 int main() {

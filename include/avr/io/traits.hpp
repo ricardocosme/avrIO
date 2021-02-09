@@ -10,6 +10,10 @@ template<uint8_t bit_number>
 struct bit_from_8bit_port
 { static constexpr bool value{bit_number >= 0 && bit_number <= 7}; };
 
+/** Traits class used to model some type to the concept `avr::io::Pin`.
+
+    This is the generic version.
+*/
 template<typename T>
 struct pin {
     template<typename T_>

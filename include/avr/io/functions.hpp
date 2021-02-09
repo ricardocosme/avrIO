@@ -4,25 +4,65 @@
 #include "avr/io/tag.hpp"
 #include "avr/io/traits.hpp"
 
-// Basic functions to operate an I/O pin that models the concept
-// avr::io::Pin.
+/** Basic functions to operate an I/O port pin that models the concept
+    avr::io::Pin. */
 
 namespace avr { namespace io {
 
+/** Returns the bit number of the pin.
+
+    The number `n` in the general form `Pxn`.
+*/
 #if (__cplusplus > 201703L) //C++20
 template<Pin T>
 #else
 template<typename T>
 #endif
-inline void high(T pin) noexcept {
-   auto& portr = *traits::pin<T>{}.portx(pin);
-   portr = portr | (1 << traits::pin<T>{}.number(pin));
- }
+[[gnu::always_inline]]
+inline uint8_t pin_number(T pin) noexcept
+{ return traits::pin<T>{}.number(pin); }
 
-//If the pin is configured as an output pin then it drives low(zero)
-//if 'v' is true or it drives high(one) if 'v' is false, otherwise the
-//internal pull-up resistor is disabled if 'v' is true or enabled if
-//'v' is false.
+/** Returns the PORTx memory address. */
+#if (__cplusplus > 201703L) //C++20
+template<Pin T>
+#else
+template<typename T>
+#endif
+[[gnu::always_inline]]
+inline volatile uint8_t& portx(T pin) noexcept
+{ return *traits::pin<T>{}.portx(pin); }
+
+/** Returns the DDRx memory address. */
+#if (__cplusplus > 201703L) //C++20
+template<Pin T>
+#else
+template<typename T>
+#endif
+[[gnu::always_inline]]
+inline volatile uint8_t& ddrx(T pin) noexcept
+{ return *traits::pin<T>{}.ddrx(pin); }
+
+/** Returns the PINx memory address. */
+#if (__cplusplus > 201703L) //C++20
+template<Pin T>
+#else
+template<typename T>
+#endif
+[[gnu::always_inline]]
+inline volatile uint8_t& pinx(T pin) noexcept
+{ return *traits::pin<T>{}.pinx(pin); }
+
+}}//namespace avr::io
+
+#include "avr/io/detail/functions.hpp"
+
+namespace avr { namespace io {
+
+/** If the pin is configured as an output pin then it drives low(zero)
+    if 'v' is true or it drives high(one) if 'v' is false, otherwise
+    the internal pull-up resistor is disabled if 'v' is true or
+    enabled if 'v' is false.
+*/
 #if (__cplusplus > 201703L) //C++20
 template<Pin T>
 #else
@@ -30,15 +70,15 @@ template<typename T>
 #endif
 [[gnu::always_inline]]
 inline void low(T pin, bool v = true) noexcept {
-    auto& portr = *traits::pin<T>{}.portx(pin);
-    if(v) portr = portr & ~(1 << traits::pin<T>{}.number(pin));
-    else high(pin);
+    if(v) detail::low(pin);
+    else detail::high(pin);
 }
 
-//If the pin is configured as an output pin then it drives high(one)
-//if 'v' is true or it drives low(zero) if 'v' is false, otherwise the
-//internal pull-up resistor is enabled if 'v' is true or disabled if
-//'v' is false.
+/** If the pin is configured as an output pin then it drives high(one)
+    if 'v' is true or it drives low(zero) if 'v' is false, otherwise
+    the internal pull-up resistor is enabled if 'v' is true or
+    disabled if 'v' is false.
+*/
 #if (__cplusplus > 201703L) //C++20
 template<Pin T>
 #else
@@ -46,48 +86,41 @@ template<typename T>
 #endif
 [[gnu::always_inline]]
 inline void high(T pin, bool v) noexcept {
-    if(v) high(pin);
+    if(v) detail::high(pin);
     else low(pin);
 }
 
-//Toggles the pin value
+/** Toggles the pin value. */
 #if (__cplusplus > 201703L) //C++20
 template<Pin T>
 #else
 template<typename T>
 #endif
 [[gnu::always_inline]]
-inline void toggle(T pin) noexcept {
-    auto& pinr = *traits::pin<T>{}.pinx(pin);
-    pinr = pinr | (1 << traits::pin<T>{}.number(pin));
-}
+inline void toggle(T pin) noexcept
+{ pinx(pin) = pinx(pin) | (1 << pin_number(pin)); }
 
-//Configures the pin as an output pin
+/** Configures the pin as an output pin. */
 #if (__cplusplus > 201703L) //C++20
 template<Pin T>
 #else
 template<typename T>
 #endif
 [[gnu::always_inline]]
-inline void out(T pin) noexcept {
-    auto& ddrr = *traits::pin<T>{}.ddrx(pin);
-    ddrr = ddrr | (1 << traits::pin<T>{}.number(pin));
-}
+inline void out(T pin) noexcept
+{ ddrx(pin) = ddrx(pin) | (1 << pin_number(pin)); }
 
-//Configures the pin as an input pin
+/** Configures the pin as an input pin. */
 #if (__cplusplus > 201703L) //C++20
 template<Pin T>
 #else
 template<typename T>
 #endif
 [[gnu::always_inline]]
-inline void in(T pin) noexcept {
-    auto& ddrr = *traits::pin<T>{}.ddrx(pin);
-    ddrr = ddrr & ~(1 << traits::pin<T>{}.number(pin));
-}
+inline void in(T pin) noexcept
+{ ddrx(pin) = ddrx(pin) & ~(1 << pin_number(pin)); }
 
-//Configures the pin as an input pin and activates the pull-up
-//resistor
+/** Configures the pin as an input pin and activates the pull-up resistor. */
 #if (__cplusplus > 201703L) //C++20
 template<Pin T>
 #else
@@ -96,10 +129,10 @@ template<typename T>
 [[gnu::always_inline]]
 inline void in(T pin, pullup_t) noexcept {
     in(pin);
-    high(pin);
+    high(pin, true);
 }
 
-//Returns true if the pin state is high(=1)
+/** Returns true if the pin state is high(=1). */
 #if (__cplusplus > 201703L) //C++20
 template<Pin T>
 #else
@@ -107,10 +140,10 @@ template<typename T>
 #endif
 [[gnu::always_inline]]
 inline bool is_high(T pin) noexcept {
-    return *traits::pin<T>{}.pinx(pin) & (1 << traits::pin<T>{}.number(pin));
+    return pinx(pin) & (1 << pin_number(pin));
 }
 
-//Returns true if the pin state is low(=0)
+/** Returns true if the pin state is low(=0). */
 #if (__cplusplus > 201703L) //C++20
 template<Pin T>
 #else
