@@ -47,7 +47,7 @@ This library can help the designer to offer an API that needs to handle pins. It
 Above we are using the API ~dev::led~ using a global object ~avr::io::pb0~ which is an instance of the model ~avr::io::pxn~ that modes the concept ~avr::io::Pin~. Note that we can also instantiate the abstraction with something more verbose like ~dev::led led{Pb0{}}~ , but in this case this doesn't make sense because all we want is to receive the pin without any initialization about your mode of operation, like if the pin is operating as an input or output one. The implementation of the API is using free functions like ~high(pin)~ instead of ~pin.high()~ because the model can't always be a class, it can be for example an integer, like that ones that are used by ~avr-libc~ through macros of the type ~PXN~. 
 
 *** Basic functions
-A basic set of functions is offered in order to allow the some basic operations on port pins. /Note, the syntax below uses C++20 to better express the prototype of the function, but all functions has support to C++11 or greater. The purpose here is only to show briefly what each function do. Open the `avr/io/functions.hpp` to see the real prototype./
+A basic set of functions is offered in order to allow some basic operations on port pins. /Note, the syntax below uses C++20 to better express the prototype of the function, but all functions has support to C++11 or greater. The purpose here is only to show briefly what each function do. Open [[file:include/avr/io/functions.hpp][avr/io/functions.hpp]] to see the real prototype./
 
 **** ~uint8_t pin_number(auto Pin)~
 Returns the bit number of the pin. This is the nunmber ~n~ in the general form ~Pxn~.
@@ -68,7 +68,7 @@ If the pin is configured as an output pin then it drives low(zero) if ~v~ is tru
 If the pin is configured as an output pin then it drives high(one) if ~v~ is true or it drives low(zero) if ~v~ is false, otherwise the internal pull-up resistor is enabled if ~v~ is true or disabled if ~v~ is false.
 
 **** ~void toggle(auto Pin)~
-Toggles the pin value.
+Toggles the pin value. If the pin state is equal to high then it will be equal to low, otherwise, if the pin state is equal to low then it will be equal to high.
 
 **** ~void out(auto Pin)~ 
 Configures the pin as an output pin.
