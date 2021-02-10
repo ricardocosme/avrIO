@@ -46,6 +46,45 @@ This library can help the designer to offer an API that needs to handle pins. It
 
 Above we are using the API ~dev::led~ using a global object ~avr::io::pb0~ which is an instance of the model ~avr::io::pxn~ that modes the concept ~avr::io::Pin~. Note that we can also instantiate the abstraction with something more verbose like ~dev::led led{Pb0{}}~ , but in this case this doesn't make sense because all we want is to receive the pin without any initialization about your mode of operation, like if the pin is operating as an input or output one. The implementation of the API is using free functions like ~high(pin)~ instead of ~pin.high()~ because the model can't always be a class, it can be for example an integer, like that ones that are used by ~avr-libc~ through macros of the type ~PXN~. 
 
+*** Basic functions
+A basic set of functions is offered in order to allow the some basic operations on port pins. /Note, the syntax below uses C++20 to better express the prototype of the function, but all functions has support to C++11 or greater. The purpose here is only to show briefly what each function do. Open the `avr/io/functions.hpp` to see the real prototype./
+
+**** ~uint8_t pin_number(auto Pin)~
+Returns the bit number of the pin. This is the nunmber ~n~ in the general form ~Pxn~.
+
+**** ~volatile uint8_t& portx(auto Pin)~
+Returns the memory address of the register ~PORTx~.
+
+**** ~volatile uint8_t& ddrx(auto Pin)~
+Returns the memory address of the register ~DDRx~.
+
+**** ~volatile uint8_t& pinx(auto Pin)~
+Returns the memory address of the register ~PINx~.
+
+**** ~void low(auto Pin, bool v = true)~
+If the pin is configured as an output pin then it drives low(zero) if ~v~ is true or it drives high(one) if ~v~ is false, otherwise the internal pull-up resistor is disabled if ~v~ is true or enabled if ~v~ is false.
+
+**** ~void high(auto Pin, bool v = true)~
+If the pin is configured as an output pin then it drives high(one) if ~v~ is true or it drives low(zero) if ~v~ is false, otherwise the internal pull-up resistor is enabled if ~v~ is true or disabled if ~v~ is false.
+
+**** ~void toggle(auto Pin)~
+Toggles the pin value.
+
+**** ~void out(auto Pin)~ 
+Configures the pin as an output pin.
+
+**** ~void in(auto Pin)~ 
+Configures the pin as an input pin without the pull-up resistor.
+
+**** ~void in(auto Pin, pullup_t)~
+Configures the pin as an input pin with pull-up resistor activated.
+
+**** ~is_high(auto Pin)~
+Returns true if the pin state is high(=1).
+
+**** ~is_low(auto Pin)~
+Returns true if the pin state is low(=0).
+
 *** [Advanced] Adaptability to other abstractions
 Other models to the concept ~avr::io::Pin~ can be written to adapt an existing abstraction that represents port I/O pins to components written using ~avrIO~. For example, an API can be called with the instance ~avr::io::pc1~ but it also can be called with another abstraction that is already used in the project of the user to represent a pin, like integers that represents the pins of the chip in a specific board(like Arduino Micro) or pins related to a specific package type(like PDIP) of the chip. In order to allow this, the user of the API should extend the ~avrIO~ only once to adapt the desired abstraction to the concept ~avr::io::Pin~. Below is a hypothetical demo of a program that must use an API written in ~avrIO~ but using an interger that represents the pin of an ATtiny85 in the PDIP package form:
 #+BEGIN_SRC C++

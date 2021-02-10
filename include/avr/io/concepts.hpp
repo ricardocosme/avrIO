@@ -14,7 +14,6 @@ namespace avr { namespace io {
 
     It's the number `n` in the general form Pxn or PORTxn.
     The number `n` must satisfies: n >= 0 && n <= 7.
-
 */
 template<typename Pin>
 consteval auto bit_number(Pin o)
