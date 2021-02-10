@@ -8,7 +8,7 @@
 // I/O pins using the numbers of the pins in PDIP package. There isn't
 // any intention here to claim that this particular usage is a good
 // ideia, the only purpose here is to show how flexible is the
-// extension mechanism using a fundamental type as 'int' as a
+// extension mechanism using a fundamental type like `int` as a
 // representation to a pin.
 //
 // We want to map the following:
@@ -30,12 +30,15 @@ struct avr::io::traits::pin<int> {
         else if (n >= 2 && n <= 3) return n + 1;
         return 5;
     }
+    
     [[gnu::always_inline]]
     auto pinx(int o) const noexcept 
     { return reinterpret_cast<volatile uint8_t*>(pin_addr); }
+    
     [[gnu::always_inline]]
     auto ddrx(int o) const noexcept 
     { return pinx(o) + 1; }
+    
     [[gnu::always_inline]]
     auto portx(int o) const noexcept 
     { return pinx(o) + 2; }

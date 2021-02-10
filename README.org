@@ -46,13 +46,13 @@ The version above has support to C++20 Concepts and the template parameter of th
 
 This library can help the designer to offer an API that needs to handle pins. It can receive the information using a flexible and minimal representation. The argument ~Pin~ can be anything that models the concept ~avr::io::Pin~ and only one object can represent the location of the pin. There is no need, for example, to ask for the registers that are related to the pin in question.
 
-Above we are using the API ~dev::led~ using a global object ~avr::io::pb0~ which is an instance of the model ~avr::io::pxn~ that modes the concept ~avr::io::Pin~. Note that we can also instantiate the abstraction with something more verbose like ~dev::led led{Pb0{}}~ , but in this case this doesn't make sense because all we want is to receive the pin without any initialization about your mode of operation, like if the pin is operating as an input or output one. The implementation of the API is using free functions like ~high(pin)~ instead of ~pin.high()~ because the model can't always be a class, it can be for example an integer, like that ones that are used by ~avr-libc~ through macros of the type ~PXN~. 
+Above we are using the API ~dev::led~ using a global object ~avr::io::pb0~ which is an instance of the model ~avr::io::pxn~ that modes the concept ~avr::io::Pin~. Note that we can also instantiate the abstraction with something more verbose like ~dev::led led{avr::io::Pb0{}}~ , but in this case this doesn't make sense because all we want is to receive the pin to be used, the API's implementation is responsible to configure the mode of operation of the pin, like if the pin is operating as an input or output one. The implementation of the API is using free functions like ~high(pin)~ instead of ~pin.high()~ because the model can't always be a class, it can be for example an ~int~, like that ones that are used by ~avr-libc~ through macros of the form ~PXN~. 
 
 *** Basic functions
 A basic set of functions is offered in order to allow some basic operations on port pins. /Note, the syntax below uses C++20 to better express the prototype of the function, but all functions has support to C++11 or greater. The purpose here is only to show briefly what each function do. Open [[file:include/avr/io/functions.hpp][avr/io/functions.hpp]] to see the real prototype./
 
 **** ~uint8_t pin_number(auto Pin)~
-Returns the bit number of the pin. This is the nunmber ~n~ in the general form ~Pxn~.
+Returns the bit number of the pin. This is the number ~n~ in the general form ~Pxn~.
 
 **** ~volatile uint8_t& portx(auto Pin)~
 Returns the memory address of the register ~PORTx~.
@@ -70,7 +70,7 @@ If the pin is configured as an output pin then it drives low(zero) if ~v~ is tru
 If the pin is configured as an output pin then it drives high(one) if ~v~ is true or it drives low(zero) if ~v~ is false, otherwise the internal pull-up resistor is enabled if ~v~ is true or disabled if ~v~ is false.
 
 **** ~void toggle(auto Pin)~
-Toggles the pin value. If the pin state is equal to high then it will be equal to low, otherwise, if the pin state is equal to low then it will be equal to high.
+Toggles the pin value. If the pin state is equal to high(one) then it will be equal to low(zero), otherwise, if the pin state is equal to low(zero) then it will be equal to high(one).
 
 **** ~void out(auto Pin)~ 
 Configures the pin as an output pin.
@@ -82,13 +82,13 @@ Configures the pin as an input pin without the pull-up resistor.
 Configures the pin as an input pin with pull-up resistor activated.
 
 **** ~is_high(auto Pin)~
-Returns true if the pin state is high(=1).
+Returns true if the pin state is high(one).
 
 **** ~is_low(auto Pin)~
-Returns true if the pin state is low(=0).
+Returns true if the pin state is low(zero).
 
 *** [Optional&Advanced] Adaptability to other abstractions
-Other models to the concept ~avr::io::Pin~ can be written to adapt an existing abstraction that represents port I/O pins to components written using ~avrIO~. For example, an API can be called with the instance ~avr::io::pc1~ but it also can be called with another abstraction that is already used in the project of the user to represent a pin, like integers that represents the pins of the chip in a specific board(like Arduino Micro) or pins related to a specific package type(like PDIP) of the chip. In order to allow this, the user of the API should extend the ~avrIO~ only once to adapt the desired abstraction to the concept ~avr::io::Pin~. Below is a hypothetical demo of a program that must use an API written in ~avrIO~ but using an interger that represents the pin of an ATtiny85 in the PDIP package form:
+Other models to the concept ~avr::io::Pin~ can be written to adapt an existing abstraction that represents port I/O pins to components written using [[https://github.com/ricardocosme/avrIO][avrIO]]. For example, an API can be called with the instance ~avr::io::pc1~ but it also can be called with another abstraction that is already used in the project of the user to represent a pin, like integers that represents the pins of the chip in a specific board(like Arduino Micro) or pins related to a specific package type(like PDIP) of the chip. In order to allow this, the user of the API should extend the [[https://github.com/ricardocosme/avrIO][avrIO]] only once to adapt the desired abstraction to the concept ~avr::io::Pin~. Below is a hypothetical demo of a program that must use an API developed with the library but using an interger that represents the pin of an ATtiny85 in the PDIP package form:
 #+BEGIN_SRC C++
 #include <avr/io.hpp>
 
@@ -117,19 +117,22 @@ struct avr::io::traits::pin<int> {
     
     //precondition: (n >= 1 && n <= 3) || (n >= 5 && n <= 7)
     [[gnu::always_inline]]
-    auto number(uint8_t n) const {
+    auto number(uint8_t n) const noexcept {
         if (n >= 5 && n <= 7) return n - 5;
         else if (n >= 2 && n <= 3) return n + 1;
         return 5;
     }
+
     [[gnu::always_inline]]
-    auto pinx(int o) const
+    auto pinx(int o) const noexcept
     { return reinterpret_cast<volatile uint8_t*>(pin_addr); }
+
     [[gnu::always_inline]]
-    auto ddrx(int o) const
+    auto ddrx(int o) const noexcept
     { return pinx(o) + 1; }
+
     [[gnu::always_inline]]
-    auto portx(int o) const
+    auto portx(int o) const noexcept
     { return pinx(o) + 2; }
 };
 
@@ -138,8 +141,11 @@ using namespace avr::io;
 template<avr::io::Pin Pin>
 struct led_t {
     Pin pin;
+    
     led_t(Pin ppin) : pin(ppin) { out(pin); };
-    void on(bool v = true) { high(pin, v); }
+    
+    [[gnu::always_inline]]
+    void on(bool v = true) const noexcept { high(pin, v); }
 };
 
 int main() {
@@ -200,6 +206,8 @@ Builds using ~avr-gcc-10.2 -mmcu=attiny85 -Os~.
   3e:	c0 98       	cbi	0x18, 0	; 24
   40:	fa cf       	rjmp	.-12     	; 0x36 <main+0x6>
 #+END_SRC
+
+As we can see, there is no overhead due to the library in the above examples.
 
 *** How to use it?
 This is a header only library that doesn't require any external dependency to work. It should be enough add the path to the ~include~ directory to your project:
