@@ -85,7 +85,7 @@ template<Pin T>
 template<typename T>
 #endif
 [[gnu::always_inline]]
-inline void high(T pin, bool v) noexcept {
+inline void high(T pin, bool v = true) noexcept {
     if(v) detail::high(pin);
     else low(pin);
 }
