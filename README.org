@@ -152,9 +152,9 @@ int main() {
 In the end, the designer can write an API that not only works with ~avr::io::pxn~ but also with any other model of the concept ~avr::io::Pin~. /Note, C++20 Concepts is not required here in order to allow other models./
 
 *** Performance
-The goal here is to compare the code generated using [[https://github.com/ricardocosme/avrIO][avrIO]] with a reference code that doesn't use any expressive abstration, like the one that uses ~sbi~ or ~cbi~ instructions.
+The goal here is to compare the code generated using [[https://github.com/ricardocosme/avrIO][avrIO]] with a hypothetical reference code that doesn't use any expressive abstration, like the one that uses ~sbi~ or ~cbi~ instructions directly in the code.
 
-Builds using ~avr-gcc 10.2 -mmcu=attiny85 -Os~.
+Builds using ~avr-gcc-10.2 -mmcu=attiny85 -Os~.
 
 **** demo/led.cpp [-std=c++11] 
 #+BEGIN_SRC
