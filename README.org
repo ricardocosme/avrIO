@@ -212,9 +212,10 @@ This is a header only library that doesn't require any external dependency to wo
 
 **** I'm still lost, Is there something simpler than that?
 Yes, go to the directory ~demo~ and execute the following minimal command:
+
 ~avr-g++ -std=c++11 -Os -mmcu=attiny85 -I../include led.cpp~
 
-The command above should generate a binary ~a.out~ in the current directory. /Note, you should replace the argument ~attiny85~ to the approriate value related to your microcontroller./
+The command above should generate a binary ~a.out~ in the current directory. Note, you should replace the argument ~attiny85~ to the approriate value related to your microcontroller.
 
 *** Suppoted microcontrollers
 1. ATtiny13A/85
