@@ -48,7 +48,7 @@ template<typename T>
 concept Pin =
     requires(T o) {
     /** the result `n` should satisfies: n >= 0 && n <=7. */
-    { pin_number(o) } -> std::convertible_to<uint8_t>;
+    { bit_number(o) } -> std::convertible_to<uint8_t>;
     
     { pin_PINx(o) } -> std::convertible_to<volatile uint8_t*>;
     { pin_DDRx(o) } -> std::convertible_to<volatile uint8_t*>;
