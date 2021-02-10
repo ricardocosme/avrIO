@@ -231,4 +231,4 @@ The command above should generate a binary ~a.out~ in the current directory. Not
 **** [[https://github.com/ricardocosme/hx711][hx711]]
 
 *** Contributions
-This work is under heavily development and all type of contributions are very welcome. If you like what you see and you have interest to help, don't hesitate to open a pull request or issue.
+All type of contributions are welcome. If you like what you see and you have interest to help, don't hesitate to open a pull request or issue.
