@@ -85,7 +85,7 @@ Returns true if the pin state is high(=1).
 **** ~is_low(auto Pin)~
 Returns true if the pin state is low(=0).
 
-*** [Advanced] Adaptability to other abstractions
+*** [Optional&Advanced] Adaptability to other abstractions
 Other models to the concept ~avr::io::Pin~ can be written to adapt an existing abstraction that represents port I/O pins to components written using ~avrIO~. For example, an API can be called with the instance ~avr::io::pc1~ but it also can be called with another abstraction that is already used in the project of the user to represent a pin, like integers that represents the pins of the chip in a specific board(like Arduino Micro) or pins related to a specific package type(like PDIP) of the chip. In order to allow this, the user of the API should extend the ~avrIO~ only once to adapt the desired abstraction to the concept ~avr::io::Pin~. Below is a hypothetical demo of a program that must use an API written in ~avrIO~ but using an interger that represents the pin of an ATtiny85 in the PDIP package form:
 #+BEGIN_SRC C++
 #include <avr/io.hpp>
@@ -151,10 +151,6 @@ int main() {
 
 In the end, the designer can write an API that not only works with ~avr::io::pxn~ but also with any other model of the concept ~avr::io::Pin~. /Note, C++20 Concepts is not required here in order to allow other models./
 
-Below are the microcontrollers that are supported at the moment but it should be easy to support others:
-1. ATmega328P
-2. ATtiny85/13A
-
 *** Performance
 The goal here is to compare the code generated using [[https://github.com/ricardocosme/avrIO][avrIO]] with a reference code that doesn't use any expressive abstration, like the one that uses ~sbi~ or ~cbi~ instructions.
 
@@ -203,12 +199,33 @@ Builds using ~avr-gcc 10.2 -mmcu=attiny85 -Os~.
   40:	fa cf       	rjmp	.-12     	; 0x36 <main+0x6>
 #+END_SRC
 
-*** Requires
+*** How to use it?
+This is a header only library that doesn't require any external dependency to work. It should be enough add the path to the ~include~ directory to your project:
+1. Check the requirements section.
+2. Add the ~include~ directory to your include path.
+3. Add ~#include <avr/io.hpp>~ to your source and enjoy it!
+
+*** How to build the demos?
+1. If you want to build the demos with support to C++11, then go to the directory ~demo~, if you want C++20 then go to ~demo/c++20~.
+2. Adjust at least the variables ~MCU_TARGET~ and ~AVRDUDE_DEVICE~ in the ~Makefile~ to the appropriate values related to your microcontroller. /Note, the demos are already ready to ATtiny85./
+3. ~make~
+
+**** I'm still lost, Is there something simpler than that?
+Yes, go to the directory ~demo~ and execute the following minimal command:
+~avr-g++ -std=c++11 -Os -mmcu=attiny85 -I../include led.cpp~
+
+The command above should generate a binary ~a.out~ in the current directory. /Note, you should replace the argument ~attiny85~ to the approriate value related to your microcontroller./
+
+*** Suppoted microcontrollers
+1. ATtiny13A/85
+2. ATmega328P
+
+*** Requirements
 1. ~avr-gcc~ with at least ~-std=c++11~ (Tests with ~avr-gcc 10.2~)
-2. [optional @ C++20] If the freestanding implementation of ~libstdc++~ is used, the concepts defined by the library are better defined because of the functions provided by the header ~<concepts>~.
+3. [optional @ C++20] If the freestanding implementation of ~libstdc++~ is used, the concepts defined by the library are better defined because of the functions provided by the header ~<concepts>~.
 
 *** Projects using the library
 **** [[https://github.com/ricardocosme/hx711][hx711]]
 
 *** Contributions
-The work is under heavily development and all type of contributions are very welcome. If you like what you see and you have interest to help, don't hesitate to open a pull request or issue.
+This work is under heavily development and all type of contributions are very welcome. If you like what you see and you have interest to help, don't hesitate to open a pull request or issue.
