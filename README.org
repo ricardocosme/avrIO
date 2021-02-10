@@ -1,7 +1,7 @@
 ** avrIO
 C++11/17/20 library to manipulate I/O port pins of AVR8. The purpose of this library is to raise the level of abstraction to operate I/O ports with zero-overhead in mind. It's a header only library that doesn't require any external dependency to be used, the only requirement is ~avr-gcc~ with at least C++11 support. 
 
-This library can be useful in the application layer delivering an expressive code(see [[file:demo/led.cpp][demo/led.cpp]]) but it can be also used to develop flexible and concise APIs(see [[file:demo/c++20/api.cpp][demo/c++20/api.cpp]]).
+This library can be useful in the application layer delivering an expressive code(see [[file:demo/led.cpp][demo/led.cpp]]) but it can also be used to develop flexible and concise APIs(see [[file:demo/c++20/api.cpp][demo/c++20/api.cpp]]).
 
 **** [[file:demo/led.cpp][demo/led.cpp]]
 
