@@ -237,6 +237,7 @@ The command above should generate a binary ~a.out~ in the current directory. Not
 
 *** Projects using the library
 **** [[https://github.com/ricardocosme/hx711][hx711]]
+**** [[https://github.com/ricardocosme/ds18b20][ds18b20]]
 
 *** Contributions
 All type of contributions are welcome. If you like what you see and you have interest to help, don't hesitate to open a pull request or issue.
