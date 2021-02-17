@@ -23,8 +23,20 @@ jobs:
       - name: Build docker image
         run: docker build -t avr-gcc -f .github/workflows/Dockerfile .
 
-      - name: Build demos using C++11
+      - name: Build demos to ATtiny85 using C++11
         run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo
         
-      - name: Build demos using C++20
+      - name: Build demos to ATtiny85 using C++20
         run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo/c++20
+
+      - name: Build demos to ATtiny13A using C++11
+        run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo MCU=attiny13a 
+        
+      - name: Build demos to ATtiny13A using C++20
+        run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo/c++20 MCU=attiny13a 
+
+      - name: Build demos to ATmega328P using C++11
+        run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo MCU=atmega328p
+        
+      - name: Build demos to ATmega328P using C++20
+        run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo/c++20 MCU=atmega328p 
