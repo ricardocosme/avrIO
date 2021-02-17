@@ -1,17 +1,14 @@
-MCU_TARGET=attiny85
+MCU=attiny85
 AVRDUDE_DEVICE=t85
 F_CPU=1000000
 OPTIMIZE=-Os
-STD_CXX=c++11
 
 CXX=avr-g++
 CC=avr-gcc
 OBJCOPY=avr-objcopy
 OBJDUMP=avr-objdump
-INCLUDE=-I../include
-CXXFLAGS=-std=$(STD_CXX) -g -mmcu=$(MCU_TARGET) -Wall -Wno-unused-variable -Wno-unused-but-set-variable $(OPTIMIZE) -DF_CPU=$(F_CPU) $(INCLUDE)
-
-demos = api led
+INCLUDE=-I../../include
+CXXFLAGS=-std=$(STD_CXX) -g -mmcu=$(MCU) -Wall -Wno-unused-variable -Wno-unused-but-set-variable $(OPTIMIZE) -DF_CPU=$(F_CPU) $(INCLUDE)
 
 all: $(demos:%=%.elf) $(demos:%=%.lst) $(demos:%=%.s)
 
