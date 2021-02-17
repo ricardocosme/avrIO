@@ -1,9 +1,9 @@
 ** avrIO [[https://github.com/ricardocosme/avrIO/actions?query=workflow%3A%22avr-gcc+10.2%22][https://github.com/ricardocosme/avrIO/workflows/avr-gcc%2010.2/badge.svg?branch=main]]
 C++11/17/20 library to manipulate I/O port pins of AVR8. The purpose of this library is to raise the level of abstraction to operate I/O ports with zero-overhead in mind. It's a header only library that doesn't require any external dependency to be used, the only requirement is ~avr-gcc~ with at least C++11 support. 
 
-This library can be useful in the application layer delivering an expressive code(see [[file:demo/led.cpp][demo/led.cpp]]) but it can also be used to develop flexible and concise APIs(see [[file:demo/c++20/api.cpp][demo/c++20/api.cpp]]).
+This library can be useful in the application layer delivering an expressive code(see [[file:demo/c++11/led.cpp][demo/c++11/led.cpp]]) but it can also be used to develop flexible and concise APIs(see [[file:demo/c++20/api.cpp][demo/c++20/api.cpp]]).
 
-**** [[file:demo/led.cpp][demo/led.cpp]]
+**** [[file:demo/c++11/led.cpp][demo/c++11/led.cpp]]
 
 #+BEGIN_SRC C++
 #include <avr/io.hpp>
@@ -42,7 +42,7 @@ int main() {
 }
 #+END_SRC
 
-The version above has support to C++20 Concepts and the template parameter of the class template ~led~ is implicitly deducted. There is a version [[file:demo/api.cpp][demo/api.cpp]] with support to C++11. 
+The version above has support to C++20 Concepts and the template parameter of the class template ~led~ is implicitly deducted. There is a version [[file:demo/c++11/api.cpp][demo/c++11/api.cpp]] with support to C++11. 
 
 This library can help the designer to offer an API that needs to handle pins. It can receive the information using a flexible and minimal representation. The argument ~Pin~ can be anything that models the concept ~avr::io::Pin~ and only one object can represent the location of the pin. There is no need, for example, to ask for the registers that are related to the pin in question.
 
@@ -164,7 +164,7 @@ The goal here is to compare the code generated using [[https://github.com/ricard
 
 Builds using ~avr-gcc-10.2 -mmcu=attiny85 -Os~.
 
-**** demo/led.cpp [-std=c++11] 
+**** demo/c++11/led.cpp [-std=c++11] 
 #+BEGIN_SRC
 00000022 <main>:
   22:	c0 98       	cbi	0x18, 0	; 24
@@ -216,14 +216,14 @@ This is a header only library that doesn't require any external dependency to wo
 3. Add ~#include <avr/io.hpp>~ to your source and enjoy it!
 
 *** How to build the demos?
-1. If you want to build the demos with support to C++11, then go to the directory ~demo~, if you want C++20 then go to ~demo/c++20~.
-2. Adjust at least the variables ~MCU_TARGET~ and ~AVRDUDE_DEVICE~ in the ~Makefile~ to the appropriate values related to your microcontroller. /Note, the demos are already ready to ATtiny85./
+1. If you want to build the demos with support to C++11, then go to the directory ~demo/c++11~, if you want C++20 then go to ~demo/c++20~.
+2. Adjust at least the variables ~MCU~ and ~AVRDUDE_DEVICE~ in the ~Makefile~ to the appropriate values related to your microcontroller. /Note, the demos are already ready to ATtiny85./
 3. ~make~
 
 **** I'm still lost, Is there something simpler than that?
-Yes, go to the directory ~demo~ and execute the following minimal command:
+Yes, go to the directory ~demo/c++11~ and execute the following minimal command:
 
-~avr-g++ -std=c++11 -Os -mmcu=attiny85 -I../include led.cpp~
+~avr-g++ -std=c++11 -Os -mmcu=attiny85 -I../../include led.cpp~
 
 The command above should generate a binary ~a.out~ in the current directory. Note, you should replace the argument ~attiny85~ to the approriate value related to your microcontroller.
 
