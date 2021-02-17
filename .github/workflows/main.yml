@@ -24,19 +24,19 @@ jobs:
         run: docker build -t avr-gcc -f .github/workflows/Dockerfile .
 
       - name: Build demos to ATtiny85 using C++11
-        run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo
+        run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo; make -C demo clean
         
       - name: Build demos to ATtiny85 using C++20
-        run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo/c++20
+        run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo/c++20; make -C demo/c++20 clean
 
       - name: Build demos to ATtiny13A using C++11
-        run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo MCU=attiny13a 
+        run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo MCU=attiny13a; make -C demo clean
         
       - name: Build demos to ATtiny13A using C++20
-        run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo/c++20 MCU=attiny13a 
+        run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo/c++20 MCU=attiny13a; make -C demo/c++20 clean
 
       - name: Build demos to ATmega328P using C++11
-        run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo MCU=atmega328p
+        run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo MCU=atmega328p; make -C demo clean
         
       - name: Build demos to ATmega328P using C++20
-        run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo/c++20 MCU=atmega328p 
+        run: docker run -v $(pwd):/build -w/build avr-gcc make -C demo/c++20 MCU=atmega328p; make -C demo/c++20 clean
