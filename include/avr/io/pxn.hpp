@@ -53,10 +53,8 @@ struct pxn_impl {
 
     /** Initializes the pin with the output mode. */
     AVR_IO_CONSTEXPR_CTOR
-    explicit pxn_impl(output_t m) noexcept {
-        low();
-        out();
-    }
+    explicit pxn_impl(output_t m) noexcept
+    { out(); }
     
     /** Returns a reference to the Port Input Pins (PINx). */
     static volatile uint8_t* pin() noexcept
