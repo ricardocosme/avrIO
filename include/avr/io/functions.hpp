@@ -138,7 +138,7 @@ template<Pin T>
 #else
 template<typename T>
 #endif
-[[gnu::always_inline]]
+[[gnu::always_inline, nodiscard]]
 inline bool is_high(T pin) noexcept {
     return pinx(pin) & (1 << pin_number(pin));
 }
@@ -149,7 +149,7 @@ template<Pin T>
 #else
 template<typename T>
 #endif
-[[gnu::always_inline]]
+[[gnu::always_inline, nodiscard]]
 inline bool is_low(T pin) noexcept
 { return !is_high(pin); }
 

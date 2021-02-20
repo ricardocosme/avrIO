@@ -99,17 +99,17 @@ struct pxn_impl {
     { avr::io::in(pxn_impl{}, pullup); }
 
     /** see avr/io/functions.hpp */
-    [[gnu::always_inline]]
+    [[gnu::always_inline, nodiscard]]
     static bool is_high() noexcept
     { return avr::io::is_high(pxn_impl{}); }
 
     /** see avr/io/functions.hpp */
-    [[gnu::always_inline]]
+    [[gnu::always_inline, nodiscard]]
     static bool is_low() noexcept
     { return !is_high(); }
     
     /** see avr/io/functions.hpp */
-    [[gnu::always_inline]]
+    [[gnu::always_inline, nodiscard]]
     operator bool() noexcept
     { return is_high(); }
 };
