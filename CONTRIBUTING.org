@@ -27,9 +27,9 @@ The file ~include/avr/io/mcu/at90pwm1.hpp~ should be edited to rename ~atmega328
 
 Right, it's time to describe the pins, and to do that we need to edit ~avr/io/mcu/at90pwm1/pins.hpp~. The include directive to the headers ~regs.hpp~ must be changed to reflect the new directory, so we need to replace ~#include "avr/io/mcu/atmega328p/regs.hpp"~ by ~#include "avr/io/mcu/at90pwm1/regs.hpp"~, at line 4 of the file. 
 
-With the datasheet opened, the relation of I/O pins can be obtained in the section ~I/O-Ports~. Sometimes there is a subsection to describe the registers that are used to describe an I/O port, something like ~Register description for I/O-Ports~. If the datasheet doesn't have this section, the register summary that can be used. 
+With the datasheet opened, the relation of I/O pins can be obtained in the section ~I/O-Ports~. Sometimes there is a subsection to describe the registers that are used to describe an I/O port, something like ~Register description for I/O-Ports~. If the datasheet doesn't have this section, the register summary can be used. 
 
-The ~PORTB~, that is the first port of an ~ATmega328P~, can be used as a template to all others ports of the new MCU. All we need to do is to change the letter that describe the port(if necessary) and adjust the number of bits that the port has. Some ports doesn't have 8bits, for example, the ~PORTC~ of ~ATmega328P~ has only 7bits. Take a look that the last bit is ~pc6~ and not ~pc7~.
+The ~PORTB~, that is the first port of an ~ATmega328P~, can be used as a template to all others ports of the new MCU. All we need to do is to change the letter that describes the port(if necessary) and adjust the number of bits that the port has. Some ports doesn't have 8bits, for example, the ~PORTC~ of ~ATmega328P~ has only 7bits. Note that the last bit is ~pc6~ and not ~pc7~.
 
 And after that, we are invited to write some tests to operations on I/O port pins, let's move to next section!
 
@@ -47,7 +47,7 @@ We need to edit the file ~avr/io/mcu/at90pwm1/regs.hpp~ and find by the first po
 using portb_t = reg<0x05 + 0x20>;
 #+END_SRC
 
-*!Important! This is example is using an offset of ~0x20~, take a look at the datasheet to see if there is one to the register that is being defined.*
+*!Important! This example is using an offset of 0x20, take a look at the datasheet to see if there is one to the register that is being defined.*
 
 Now, we have to reflect the number of bits used by the register, remember that we have some registers that doesn't use 8bits. We need to look at something like this:
 #+BEGIN_SRC
@@ -73,9 +73,9 @@ AVR_IO_INLINE_GLOBAL(portb0)
 The next step is to repeat the process to the registers ~DDRX~ and ~PINX~. 
 
 **** Describing other registers
-This is the most hardest part because we need to describe all I/O registers that are listed in the register summary section of the datasheet! It's nothing different from what we already have done to the registers ~{PORT,DDR,PIN}X~. Note that sometimes we can reuse some registers that we already have in the file with minor changes, like ~OCRNX~(~OCR2A~, for example).
+This is the most hardest part because we need to describe all I/O registers that are listed in the register summary section of the datasheet! It's nothing different from what we already have done to the registers ~{PORT,DDR,PIN}X~. Note that sometimes we can reuse some registers that we already have in the file with minor changes, like ~OCRNX(OCR2A, for example)~.
 
 **** Testing operations on registers
 The source ~test/at90pwm1/regs.cpp~ is responsible to test registers and its bits. The function ~regs()~ should be adjusted to reflect the registers and bits defined at ~avr/io/mcu/at90pwm1/regs.hpp~. Other functions presented in the file should be considered, and at last the file ~test/at90pwm1/expected_regs.cpp~ must be adjusted to reflect the content of ~test/at90pwm1/regs.cpp~.
 
-Finally we can try to run the base of tests, we can do that using a command ~make -Bj test~ that should be executed from the root of the repository.
+Finally we can try to run the base of tests, we can do that using the command ~make -Bj test~ that should be executed from the root of the repository.
