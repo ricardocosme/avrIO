@@ -1,1 +1,81 @@
 ** Help me to improve avrIO :)
+If you like what you see in this project and you are willing to contribute, don't hesitate to open an issue if you have something interesting to say, it can be a flaw, a bug, an idea or whatever you judge that is valuable to share.
+
+If you have energy but you don't know what to do, well, there is something very helpful that maybe you would like to do: add support to a MCU that isn't supported yet.
+
+*** How to support a new MCU?
+Basically it's necessary to describe the I/O port pins and the I/O registers of the MCU. It's desirable to write tests to cover operations on pins and registers, but this isn't something hard to do because there is a reusable structure at ~test~. I will try to describe an outline to guide the process but it's important to keep in mind that the work doesn't need to be complete, yeah, a PR with all I/O registers described and if with the same level of covered tests seen for one supported MCU is a dream, but an incomplete work is helpful too.
+
+**** First step: describing I/O port pins
+I think that the first step is to edit the header ~avr/io.hpp~ to add the entry point to the new MCU. Let's say that we are adding a support to ~AT90PWM1~, so we have something like:
+#+BEGIN_SRC
+//...
+#elif defined(__AVR_AT90PWM1__)
+  #include <avr/io/mcu/at90pwm1.hpp>
+//...
+#+END_SRC
+
+The macro ~__AVR_AT90PWM1__~ should follow the scheme ~__AVR_Device__~ where ~Device~ is the device name as from the datasheet. The name of the header ~at90pwm1.hpp~ should be the device name using lowercase, which is the same name used as argument to the option ~-mmcu~.
+
+The second step can be to copy and rename the directory ~avr/io/mcu/atmega328p~ and ~avr/io/mcu/atmega328p.hpp~ using the device name of the new MCU, so considering a support to ~AT90PWM1~, we will have something like:
+#+BEGIN_SRC
+include/avr/io/mcu/at90pwm1
+include/avr/io/mcu/at90pwm1.hpp
+#+END_SRC
+
+The file ~include/avr/io/mcu/at90pwm1.hpp~ should be edited to rename ~atmega328p~ to ~at90pwm1~.
+
+Right, it's time to describe the pins, and to do that we need to edit ~avr/io/mcu/at90pwm1/pins.hpp~. The include directive to the headers ~regs.hpp~ must be changed to reflect the new directory, so we need to replace ~#include "avr/io/mcu/atmega328p/regs.hpp"~ by ~#include "avr/io/mcu/at90pwm1/regs.hpp"~, at line 4 of the file. 
+
+With the datasheet opened, the relation of I/O pins can be obtained in the section ~I/O-Ports~. Sometimes there is a subsection to describe the registers that are used to describe an I/O port, something like ~Register description for I/O-Ports~. If the datasheet doesn't have this section, the register summary that can be used. 
+
+The ~PORTB~, that is the first port of an ~ATmega328P~, can be used as a template to all others ports of the new MCU. All we need to do is to change the letter that describe the port(if necessary) and adjust the number of bits that the port has. Some ports doesn't have 8bits, for example, the ~PORTC~ of ~ATmega328P~ has only 7bits. Take a look that the last bit is ~pc6~ and not ~pc7~.
+
+And after that, we are invited to write some tests to operations on I/O port pins, let's move to next section!
+
+**** Testing I/O port pins
+The first thing to do is to copy and paste the directory ~test/atmega328p~ to ~test/at90pwm1~. Before anything else, we need to change the file ~Makefile~ located at the root of the repository to include the target ~test/at90pwm1~ to the variable ~tests~. The following step can be a replacement of the device name located at ~test/at90pwm1/Makefile~, take a look at the variable ~mcu~.
+
+Right, the next step is to edit the source ~test/at90pwm1/pins.cpp~ to use the ports that were previously defined at ~avr/io/mcu/at90pwm1/pins.hpp~. I think that I don't need to enter in details here on how to do that because it should be enough to follow the copied content. The last thing to do is to edit the file ~test/at90pwm1/expected_pins.cpp~ to adjust the statements that uses ~avr-libc~ and inline assembly to reflect the pins that are being tested.
+
+Yeah, I know... Nothing is working if we try to execute ~make~, this is happening because we need at least to define the registers ~PORTX~, ~DDRX~ and ~PINX~ to use a pin.
+
+**** Describing the registers PORTX, DDRX and PINX.
+We need to edit the file ~avr/io/mcu/at90pwm1/regs.hpp~ and find by the first port defined at ~avr/io/mcu/at90pwm1/pins.hpp~, I mean the name of the fist port, something like ~PORTB~. We need to adjust the address used by the register in the comment and in the instantiation of the class template ~reg~, which means that we have to look to something like:
+#+BEGIN_SRC
+/** PORTB 0x05 */
+using portb_t = reg<0x05 + 0x20>;
+#+END_SRC
+
+*!Important! This is example is using an offset of ~0x20~, take a look at the datasheet to see if there is one to the register that is being defined.*
+
+Now, we have to reflect the number of bits used by the register, remember that we have some registers that doesn't use 8bits. We need to look at something like this:
+#+BEGIN_SRC
+using portb7_t = bit<portb_t, 7>;
+using portb6_t = bit<portb_t, 6>;
+using portb5_t = bit<portb_t, 5>;
+using portb4_t = bit<portb_t, 4>;
+using portb3_t = bit<portb_t, 3>;
+using portb2_t = bit<portb_t, 2>;
+using portb1_t = bit<portb_t, 1>;
+using portb0_t = bit<portb_t, 0>;
+AVR_IO_INLINE_GLOBAL(portb)
+AVR_IO_INLINE_GLOBAL(portb7)
+AVR_IO_INLINE_GLOBAL(portb6)
+AVR_IO_INLINE_GLOBAL(portb5)
+AVR_IO_INLINE_GLOBAL(portb4)
+AVR_IO_INLINE_GLOBAL(portb3)
+AVR_IO_INLINE_GLOBAL(portb2)
+AVR_IO_INLINE_GLOBAL(portb1)
+AVR_IO_INLINE_GLOBAL(portb0)
+#+END_SRC
+
+The next step is to repeat the process to the registers ~DDRX~ and ~PINX~. 
+
+**** Describing other registers
+This is the most hardest part because we need to describe all I/O registers that are listed in the register summary section of the datasheet! It's nothing different from what we already have done to the registers ~{PORT,DDR,PIN}X~. Note that sometimes we can reuse some registers that we already have in the file with minor changes, like ~OCRNX~(~OCR2A~, for example).
+
+**** Testing operations on registers
+The source ~test/at90pwm1/regs.cpp~ is responsible to test registers and its bits. The function ~regs()~ should be adjusted to reflect the registers and bits defined at ~avr/io/mcu/at90pwm1/regs.hpp~. Other functions presented in the file should be considered, and at last the file ~test/at90pwm1/expected_regs.cpp~ must be adjusted to reflect the content of ~test/at90pwm1/regs.cpp~.
+
+Finally we can try to run the base of tests, we can do that using a command ~make -Bj test~ that should be executed from the root of the repository.
