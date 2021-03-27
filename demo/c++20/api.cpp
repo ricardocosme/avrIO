@@ -5,8 +5,8 @@ using namespace avr::io;
 template<avr::io::Pin Pin>
 struct led_t {
     Pin pin;
-    led_t(Pin ppin) : pin(ppin) { out(pin); };
-    void on(bool v = true) { high(pin, v); }
+    led_t(Pin ppin) : pin(ppin) { pin.out(); };
+    void on(bool v = true) { pin.high(v); }
 };
 
 int main() {

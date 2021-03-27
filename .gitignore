@@ -1,3 +1,6 @@
 *.[osd]
 *.elf
 *.lst
+*.diff
+*.hex
+playground

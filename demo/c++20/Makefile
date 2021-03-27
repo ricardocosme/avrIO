@@ -1,4 +1,4 @@
-STD_CXX=c++20
-demos=api extension
+stdcxx=c++20
+demos=api
 
 include ../common.mk

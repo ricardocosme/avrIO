@@ -1,14 +1,13 @@
-MCU=attiny85
-AVRDUDE_DEVICE=t85
+mcu=attiny13a
+dev=t13
 F_CPU=1000000
-OPTIMIZE=-Os
 
 CXX=avr-g++
 CC=avr-gcc
 OBJCOPY=avr-objcopy
 OBJDUMP=avr-objdump
 INCLUDE=-I../../include
-CXXFLAGS=-std=$(STD_CXX) -g -mmcu=$(MCU) -Wall -Wno-unused-variable -Wno-unused-but-set-variable $(OPTIMIZE) -DF_CPU=$(F_CPU) $(INCLUDE)
+CXXFLAGS=-std=$(stdcxx) -g -mmcu=$(mcu) -Wall -Wno-unused-variable -Wno-unused-but-set-variable -Os -DF_CPU=$(F_CPU) $(INCLUDE)
 
 all: $(demos:%=%.elf) $(demos:%=%.lst) $(demos:%=%.s)
 
@@ -34,7 +33,7 @@ include $(demos:%=%.d)
 
 .PHONY: flash_%
 flash-%: %.hex
-	avrdude -p $(AVRDUDE_DEVICE) -c usbasp -P usb  -U flash:w:$<
+	avrdude -p $(dev) -c usbasp -P usb  -U flash:w:$<
 
 size:
 	avr-size $(demos:%=%.elf)

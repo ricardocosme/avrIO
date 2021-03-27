@@ -13,3 +13,23 @@ namespace avr { namespace io { namespace detail {
     { return (__VA_ARGS__); }                                   
     
 }}}
+
+#if __cplusplus > 201703L
+#define AVR_IO_REQUIRES_CONCEPT_PIN requires avr::io::Pin<T>
+#else
+#define AVR_IO_REQUIRES_CONCEPT_PIN
+#endif
+
+#if __cplusplus > 201703L
+#define AVR_IO_REQUIRES_CONCEPT_PINS requires (avr::io::Pin<Pins> && ...)
+#else
+#define AVR_IO_REQUIRES_CONCEPT_PINS
+#endif
+
+#if __cplusplus > 201703L
+#define AVR_IO_REQUIRES_CONCEPT_BITS requires (avr::io::Bit<Bits> && ...)
+#else
+#define AVR_IO_REQUIRES_CONCEPT_BITS
+#endif
+
+#define AVR_IO_ALWAYS_INLINE [[gnu::always_inline]] inline

@@ -1,185 +1,91 @@
-** avrIO [[https://github.com/ricardocosme/avrIO/actions?query=workflow%3A%22avr-gcc+10.2%22][https://github.com/ricardocosme/avrIO/workflows/avr-gcc%2010.2/badge.svg?branch=main]]
-C++11/17/20 library to manipulate I/O port pins of AVR8. The purpose of this library is to raise the level of abstraction to operate I/O ports with zero-overhead in mind. It's a header only library that doesn't require any external dependency to be used, the only requirement is ~avr-gcc~ with at least C++11 support. 
+** avrIO [[https://github.com/ricardocosme/avrIO/actions?query=workflow%3A%22tests%22][https://github.com/ricardocosme/avrIO/workflows/tests/badge.svg?branch=main]] [[https://github.com/ricardocosme/avrIO/actions?query=workflow%3A%22demos%22][https://github.com/ricardocosme/avrIO/workflows/demos/badge.svg?branch=main]]
+C++11/17/20 library to manipulate I/O port pins and registers of AVR8. The purpose of this work is to raise the level of abstraction to operate I/O ports or general I/O registers with zero-overhead in mind. It's a header only library that doesn't require any external dependency to be used, the only requirement is ~avr-gcc~ with at least C++11 support. 
 
-This library can be useful in the application layer delivering an expressive code(see [[file:demo/c++11/led.cpp][demo/c++11/led.cpp]]) but it can also be used to develop flexible and concise APIs(see [[file:demo/c++20/api.cpp][demo/c++20/api.cpp]]).
+It can be useful in the application layer delivering an expressive code(see [[file:demo/c++11/led.cpp][demo/c++11/led.cpp]]) but it can also be used to develop flexible and concise APIs(see [[file:demo/c++20/api.cpp][demo/c++20/api.cpp]]).
 
-**** [[file:demo/c++11/led.cpp][demo/c++11/led.cpp]]
+**** Single I/O port pin
 
 #+BEGIN_SRC C++
-#include <avr/io.hpp>
+  Pb0 led{output};
+  Pb3 sw{pullup};
 
-using namespace avr::io;
-
-int main() {
-    Pb0 led{output};
-    Pb3 sw{pullup};
-
-    while(true) led.high(sw.is_low());
-}
+  while(true) led.high(sw.is_low());
 #+END_SRC
+[[file:demo/c++11/led.cpp][demo/c++11/led.cpp]]
 
-The [[https://github.com/ricardocosme/avrIO][avrIO]] handles what is the type of the microcontroller to know what is the pin in the chip that is represented by ~avr::io::Pb0~ or ~avr::io::Pb3~ (see [[file:include/avr/io/io.hpp][include/avr/io/io.hpp]]). 
+A LED connected to the pin `PB0` is turned on when the switch connected to `PB3` is on.
 
-**** [[file:demo/c++20/api.cpp][demo/c++20/api.cpp]]
+It illustrates the operation of on one pin at a time.
+
+**** Multiples I/O port pins
+#+BEGIN_SRC C++
+  auto [swA, swB] = in(pullup, pb2, pb1);
+  auto [ledA, ledB] = out(pb0, pb4);
+
+  while(true)
+      set(ledA(lazy::is_low(swA)), ledB(lazy::is_low(swB)));
+#+END_SRC
+[[file:demo/c++17/leds.cpp][demo/c++17/leds.cpp]]
+
+A LED connected to the pin `PB0` is turned on when the switch connected to `PB2` is on and a LED connected to `PB4` is turned on when the switch connected to `PB1` is on.
+
+It illustrates the operation of more than one pin at once. There is a C++11 version of demo at [[file:demo/c++11/leds.cpp][demo/c++11/leds.cpp]].
+
+**** Developing API
 
 #+BEGIN_SRC C++
-#include <avr/io.hpp>
+  template<avr::io::Pin Pin>
+  struct led_t {
+      Pin pin;
+      led_t(Pin ppin) : pin(ppin) { out(pin); };
+      void on(bool v = true) { high(pin, v); }
+  };
 
-using namespace avr::io;
-
-template<avr::io::Pin Pin>
-struct led_t {
-    Pin pin;
-    led_t(Pin ppin) : pin(ppin) { out(pin); };
-    void on(bool v = true) { high(pin, v); }
-};
-
-int main() {
-    led_t led{pb0};
-    Pb3 sw{pullup};
+  int main() {
+      led_t led{pb0};
+      Pb3 sw{pullup};
     
-    while(true) led.on(sw.is_low());
-}
+      while(true) led.on(sw.is_low());
+  }
 #+END_SRC
+ [[file:demo/c++20/api.cpp][demo/c++20/api.cpp]]
 
 The version above has support to C++20 Concepts and the template parameter of the class template ~led~ is implicitly deducted. There is a version [[file:demo/c++11/api.cpp][demo/c++11/api.cpp]] with support to C++11. 
 
-This library can help the designer to offer an API that needs to handle pins. It can receive the information using a flexible and minimal representation. The argument ~Pin~ can be anything that models the concept ~avr::io::Pin~ and only one object can represent the location of the pin. There is no need, for example, to ask for the registers that are related to the pin in question.
+This illustrates how to design an API that receives an I/O port pin.
 
-Above we are using the API ~dev::led~ using a global object ~avr::io::pb0~ which is an instance of the model ~avr::io::pxn~ that modes the concept ~avr::io::Pin~. Note that we can also instantiate the abstraction with something more verbose like ~dev::led led{avr::io::Pb0{}}~ , but in this case this doesn't make sense because all we want is to receive the pin to be used, the API's implementation is responsible to configure the mode of operation of the pin, like if the pin is operating as an input or output one. The implementation of the API is using free functions like ~high(pin)~ instead of ~pin.high()~ because the model can't always be a class, it can be for example an ~int~, like that ones that are used by ~avr-libc~ through macros of the form ~PXN~. 
+This library can help the designer to offer an API that needs to handle pins. It can receive the information using a flexible and minimal representation. The argument ~Pin~ can be anything that models the concept ~avr::io::Pin~ and with only one object the the location of the pin can be represented. There is no need, for example, to ask for the registers that are related to the pin in question.
 
-*** Basic functions
-A basic set of functions is offered in order to allow some basic operations on port pins. /Note, the syntax below uses C++20 to better express the prototype of the function, but all functions has support to C++11 or greater. The purpose here is only to show briefly what each function do. Open [[file:include/avr/io/functions.hpp][avr/io/functions.hpp]] to see the real prototype./
+**** I/O registers
 
-**** ~uint8_t pin_number(auto Pin)~
-Returns the bit number of the pin. This is the number ~n~ in the general form ~Pxn~.
-
-**** ~volatile uint8_t& portx(auto Pin)~
-Returns the memory address of the register ~PORTx~.
-
-**** ~volatile uint8_t& ddrx(auto Pin)~
-Returns the memory address of the register ~DDRx~.
-
-**** ~volatile uint8_t& pinx(auto Pin)~
-Returns the memory address of the register ~PINx~.
-
-**** ~void low(auto Pin, bool v = true)~
-If the pin is configured as an output pin then it drives low(zero) if ~v~ is true or it drives high(one) if ~v~ is false, otherwise the internal pull-up resistor is disabled if ~v~ is true or enabled if ~v~ is false.
-
-**** ~void high(auto Pin, bool v = true)~
-If the pin is configured as an output pin then it drives high(one) if ~v~ is true or it drives low(zero) if ~v~ is false, otherwise the internal pull-up resistor is enabled if ~v~ is true or disabled if ~v~ is false.
-
-**** ~void toggle(auto Pin)~
-Toggles the pin value. If the pin state is equal to high(one) then it will be equal to low(zero), otherwise, if the pin state is equal to low(zero) then it will be equal to high(one).
-
-**** ~void out(auto Pin)~ 
-Configures the pin as an output pin.
-
-**** ~void in(auto Pin)~ 
-Configures the pin as an input pin without the pull-up resistor.
-
-**** ~void in(auto Pin, pullup_t)~
-Configures the pin as an input pin with pull-up resistor activated.
-
-**** ~is_high(auto Pin)~
-Returns true if the pin state is high(one).
-
-**** ~is_low(auto Pin)~
-Returns true if the pin state is low(zero).
-
-*** [Optional&Advanced] Adaptability to other abstractions
-Other models to the concept ~avr::io::Pin~ can be written to adapt an existing abstraction that represents port I/O pins to components written using [[https://github.com/ricardocosme/avrIO][avrIO]]. For example, an API can be called with the instance ~avr::io::pc1~ but it also can be called with another abstraction that is already used in the project of the user to represent a pin, like integers that represents the pins of the chip in a specific board(like Arduino Micro) or pins related to a specific package type(like PDIP) of the chip. In order to allow this, the user of the API should extend the [[https://github.com/ricardocosme/avrIO][avrIO]] only once to adapt the desired abstraction to the concept ~avr::io::Pin~. Below is a hypothetical demo of a program that must use an API developed with the library but using an interger that represents the pin of an ATtiny85 in the PDIP package form:
 #+BEGIN_SRC C++
-#include <avr/io.hpp>
+  //enables the power-down sleep
+  mcucr = (mcucr & ~sm0) | sm1 | se;
 
-#if !(defined(__AVR_ATtiny85__) || defined(__AVR_ATtiny13A__))
-#error "This demo is only supported to ATtiny85/13A"
-#endif
+  //or something more expressive and concise
+  set(se, sm1, sm0(off));
 
-// This demo shows a hypothetical extension to model the ATtiny85 port
-// I/O pins using the numbers of the pins in PDIP package. There isn't
-// any intention here to claim that this particular usage is a good
-// ideia, the only purpose here is to show how flexible is the
-// extension mechanism using a fundamental type as 'int' as a
-// representation to a pin.
-//
-// We want to map the following:
-// 1 -> PB5
-// 2 -> PB3
-// 3 -> PB4
-// 5 -> PB0
-// 6 -> PB1
-// 7 -> PB2
-//
-template<>
-struct avr::io::traits::pin<int> {
-    static const uint8_t pin_addr{0x16 + 0x20};
-    
-    //precondition: (n >= 1 && n <= 3) || (n >= 5 && n <= 7)
-    [[gnu::always_inline]]
-    auto number(uint8_t n) const noexcept {
-        if (n >= 5 && n <= 7) return n - 5;
-        else if (n >= 2 && n <= 3) return n + 1;
-        return 5;
-    }
+  //an integer can still be assigned
+  portb = 0x07;
 
-    [[gnu::always_inline]]
-    auto pinx(int o) const noexcept
-    { return reinterpret_cast<volatile uint8_t*>(pin_addr); }
+  //or something more expressive that doesn't use bitwise operators
+  portb = {pb3, pb2, pb1};
 
-    [[gnu::always_inline]]
-    auto ddrx(int o) const noexcept
-    { return pinx(o) + 1; }
+  portb = pb0 | pc1; //compile error because it isn't allowed to mix
+                     //bits from different registers.
 
-    [[gnu::always_inline]]
-    auto portx(int o) const noexcept
-    { return pinx(o) + 2; }
-};
-
-using namespace avr::io;
-
-template<avr::io::Pin Pin>
-struct led_t {
-    Pin pin;
-    
-    led_t(Pin ppin) : pin(ppin) { out(pin); };
-    
-    [[gnu::always_inline]]
-    void on(bool v = true) const noexcept { high(pin, v); }
-};
-
-int main() {
-    led_t led{5};
-    in(2, pullup);
-
-    while(true) led.on(is_low(2));
-}
-#+END_SRC C++
-[[file:demo/c++20/extension.cpp][demo/c++20/extension.cpp]]
-
-In the end, the designer can write an API that not only works with ~avr::io::pxn~ but also with any other model of the concept ~avr::io::Pin~. /Note, C++20 Concepts is not required here in order to allow other models./
+  portb = pb0 | pc1.bv(); //Ok. The byte value can be obtained to bypass
+                          //the type system.
+#+END_SRC
+Note: Using the ATtiny13A here to illustrate some operations on register but the same thing can be done at any other MCU that is supported by the library.
 
 *** Performance
 The goal here is to compare the code generated using [[https://github.com/ricardocosme/avrIO][avrIO]] with a hypothetical reference code that doesn't use any expressive abstration, like the one that uses ~sbi~ or ~cbi~ instructions directly in the code.
 
-Builds using ~avr-gcc-10.2 -mmcu=attiny85 -Os~.
+Builds using ~avr-gcc-10.2 -mmcu=attiny13a -Os~.
 
 **** demo/c++11/led.cpp [-std=c++11] 
-#+BEGIN_SRC
-00000022 <main>:
-  22:	c0 98       	cbi	0x18, 0	; 24
-  24:	b8 9a       	sbi	0x17, 0	; 23
-  26:	bb 98       	cbi	0x17, 3	; 23
-  28:	c3 9a       	sbi	0x18, 3	; 24
-  2a:	b3 99       	sbic	0x16, 3	; 22
-  2c:	02 c0       	rjmp	.+4      	; 0x32 <main+0x10>
-  2e:	c0 9a       	sbi	0x18, 0	; 24
-  30:	fc cf       	rjmp	.-8      	; 0x2a <main+0x8>
-  32:	c0 98       	cbi	0x18, 0	; 24
-  34:	fa cf       	rjmp	.-12     	; 0x2a <main+0x8>
-#+END_SRC
-
-**** demo/c++20/api.cpp  [-std=c++20] 
+56 bytes
 #+BEGIN_SRC
 00000022 <main>:
   22:	b8 9a       	sbi	0x17, 0	; 23
@@ -193,18 +99,41 @@ Builds using ~avr-gcc-10.2 -mmcu=attiny85 -Os~.
   32:	fa cf       	rjmp	.-12     	; 0x28 <main+0x6>
 #+END_SRC
 
-**** demo/c++20/extension.cpp  [-std=c++20] 
+**** demo/c++11/leds.cpp [-std=c++11]
+70 bytes
 #+BEGIN_SRC
-00000030 <main>:
-  30:	b8 9a       	sbi	0x17, 0	; 23
-  32:	bb 98       	cbi	0x17, 3	; 23
-  34:	c3 9a       	sbi	0x18, 3	; 24
-  36:	b3 99       	sbic	0x16, 3	; 22
-  38:	02 c0       	rjmp	.+4      	; 0x3e <__SP_H__>
-  3a:	c0 9a       	sbi	0x18, 0	; 24
-  3c:	fc cf       	rjmp	.-8      	; 0x36 <main+0x6>
-  3e:	c0 98       	cbi	0x18, 0	; 24
-  40:	fa cf       	rjmp	.-12     	; 0x36 <main+0x6>
+00000022 <main>:
+  22:	ba 98       	cbi	0x17, 2	; 23
+  24:	b9 98       	cbi	0x17, 1	; 23
+  26:	c2 9a       	sbi	0x18, 2	; 24
+  28:	c1 9a       	sbi	0x18, 1	; 24
+  2a:	b8 9a       	sbi	0x17, 0	; 23
+  2c:	bc 9a       	sbi	0x17, 4	; 23
+  2e:	90 e0       	ldi	r25, 0x00	; 0
+  30:	b2 9b       	sbis	0x16, 2	; 22
+  32:	91 60       	ori	r25, 0x01	; 1
+  34:	b1 9b       	sbis	0x16, 1	; 22
+  36:	90 61       	ori	r25, 0x10	; 16
+  38:	88 b3       	in	r24, 0x18	; 24
+  3a:	8e 7e       	andi	r24, 0xEE	; 238
+  3c:	89 2b       	or	r24, r25
+  3e:	88 bb       	out	0x18, r24	; 24
+  40:	f6 cf       	rjmp	.-20     	; 0x2e <main+0xc>
+#+END_SRC
+
+**** demo/c++20/api.cpp  [-std=c++20] 
+56 bytes
+#+BEGIN_SRC
+00000022 <main>:
+  22:	b8 9a       	sbi	0x17, 0	; 23
+  24:	bb 98       	cbi	0x17, 3	; 23
+  26:	c3 9a       	sbi	0x18, 3	; 24
+  28:	b3 99       	sbic	0x16, 3	; 22
+  2a:	02 c0       	rjmp	.+4      	; 0x30 <main+0xe>
+  2c:	c0 9a       	sbi	0x18, 0	; 24
+  2e:	fc cf       	rjmp	.-8      	; 0x28 <main+0x6>
+  30:	c0 98       	cbi	0x18, 0	; 24
+  32:	fa cf       	rjmp	.-12     	; 0x28 <main+0x6>
 #+END_SRC
 
 As we can see, there is no overhead due to the library in the above examples.
@@ -215,29 +144,11 @@ This is a header only library that doesn't require any external dependency to wo
 2. Add the ~include~ directory to your include path.
 3. Add ~#include <avr/io.hpp>~ to your source and enjoy it!
 
-*** How to build the demos?
-1. If you want to build the demos with support to C++11, then go to the directory ~demo/c++11~, if you want C++20 then go to ~demo/c++20~.
-2. Adjust at least the variables ~MCU~ and ~AVRDUDE_DEVICE~ in the ~Makefile~ to the appropriate values related to your microcontroller. /Note, the demos are already ready to ATtiny85./
-3. ~make~
-
-**** I'm still lost, Is there something simpler than that?
-Yes, go to the directory ~demo/c++11~ and execute the following minimal command:
-
-~avr-g++ -std=c++11 -Os -mmcu=attiny85 -I../../include led.cpp~
-
-The command above should generate a binary ~a.out~ in the current directory. Note, you should replace the argument ~attiny85~ to the approriate value related to your microcontroller.
-
-*** Suppoted microcontrollers
-1. ATtiny13A/85
-2. ATmega328P
+*** Supported microcontrollers
+1. ATtiny13A/13
+2. ATtiny25/45/85
+3. ATmega328P
 
 *** Requirements
 1. ~avr-gcc~ with at least ~-std=c++11~ (Tests with ~avr-gcc 10.2~)
-3. [optional @ C++20] If the freestanding implementation of ~libstdc++~ is used, the concepts defined by the library are better defined because of the functions provided by the header ~<concepts>~.
-
-*** Projects using the library
-1. [[https://github.com/ricardocosme/hx711][hx711]]
-2. [[https://github.com/ricardocosme/ds18b20][ds18b20]]
-
-*** Contributions
-All type of contributions are welcome. If you like what you see and you have interest to help, don't hesitate to open a pull request or issue.
+2. Optimization level greater or equal to `-O2`. This library is designed with the optimization `-Os` in mind.

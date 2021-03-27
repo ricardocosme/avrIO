@@ -1,71 +1,88 @@
 #pragma once
 
-#include "avr/io/traits.hpp"
-
-#if (__cplusplus > 201703L) && __has_include(<concepts>) //C++20
-#include <concepts>
-#endif
-
 namespace avr { namespace io {
 
-#if (__cplusplus > 201703L)  //C++20
+template<int bit_number>
+constexpr bool valid_bit_number{bit_number >= 0 && bit_number <= 7};
 
-/** The bit number that identifies the pin in the port.
+/** Concept to an IO register
 
-    It's the number `n` in the general form Pxn or PORTxn.
-    The number `n` must satisfies: n >= 0 && n <= 7.
+    This specifies the constraints that a type should satisfy to model
+    the concept of an IO register. For example, the abstractions 'reg'
+    located at 'register/reg.hpp' models this concept.
+ */
+template<typename T>
+concept Register =
+    requires(T o) {
+
+    /** memory address of the register */
+    T::addr;
+
+    /** volatile uint8_t& to read/write */
+    {T::ref()};
+
+    /** assignment operator to assign an uint8_t as a value to the
+     * register. */
+    { o = 0xff };
+};
+
+/** Concept to a bit of an IO register
+
+    This specifies the constraints that a type should satisfy to model
+    the concept of one bit of an IO register. The abstractions 'bit',
+    'bit_state_as_bool' and 'bit_state_as_func' are examples of models
+    of this concept.
+ */
+template<typename T>
+concept Bit =
+    requires {
+
+    /** register which owns the bit */
+    typename T::reg;
+
+    /** bit position in the register 'T::reg'*/
+    T::value; 
+    
+    /** 'true' if the bit state represented by 'T' is not know at
+      compile-time and 'false' if the state can only be know at
+      runtime. */
+    T::representation_at_runtime;
+
+    /** predicate that returns 'true' if the 'T' represents the state
+        'on' and 'false' if it represents the state 'off' */
+    {T::represents_bit_on()};
+
+    //TODO: Replace this by a free function that receives the
+    //represents_bit_on() and the T::value.
+    /** byte value representation of the bit. If
+        'T::represents_bit_on() == true' then 'bv() == (1<<T::value)
+        otherwise 'bv() == ~(1<<value)'. */
+    {T::bv()};
+    
+    }
+    && valid_bit_number<T::value>
+    && Register<typename T::reg>
+;
+
+/** Concept to a read/write IO port pin (Pxn) 
+    
+    This specifies the constraints that a type should satisfy to model
+    the concept of a read/write IO port pin. One example of model is
+    the class template 'pxn' located at 'pin/pxn.hpp'.
 */
-template<typename Pin>
-consteval auto bit_number(Pin o)
-{ return traits::pin<Pin>{}.number(o); }
-
-/** The PINx address related to the pin. */
-template<typename Pin>
-consteval auto pin_PINx(Pin o)
-{ return traits::pin<Pin>{}.pinx(o); }
-
-/** The DDRx address related to the pin. */
-template<typename Pin>
-consteval auto pin_DDRx(Pin o)
-{ return traits::pin<Pin>{}.ddrx(o); }
-
-/** The PORTx address related to the pin. */
-template<typename Pin>
-consteval auto pin_PORTx(Pin o)
-{ return traits::pin<Pin>{}.portx(o); }
-
-/** Concept to a single pin of an I/O port (Pxn or PORTxn)
-
-    One single pin is represented by:
-    1. An unsigned integer with is the number `n` in the general form
-       Pxn or PORTxn. The number must satisfies: n >= 0 && n <= 7.
-    2. An 8bit memory address to the register PINx.
-    3. An 8bit memory address to the register DDRx.
-    4. An 8bit memory address to the register PORTx.
-*/
-#if __has_include(<concepts>) //using libstdc++ freestanding implementation
 template<typename T>
 concept Pin =
-    requires(T o) {
-    /** the result `n` should satisfies: n >= 0 && n <=7. */
-    { bit_number(o) } -> std::convertible_to<uint8_t>;
-    
-    { pin_PINx(o) } -> std::convertible_to<volatile uint8_t*>;
-    { pin_DDRx(o) } -> std::convertible_to<volatile uint8_t*>;
-    { pin_PORTx(o) } -> std::convertible_to<volatile uint8_t*>;
-};
-#else
-template<typename T>
-concept Pin =
-    requires(T o) {
-    /** the result `n` should satisfies: n >= 0 && n <=7. */
-    bit_number(o);
-    
-    pin_PINx(o);
-    pin_DDRx(o);
-    pin_PORTx(o);
-};
-#endif
-#endif
+    requires{
+    T::value; /** bit number that represents the pin in the register PORTX*/
+    typename T::portx; /** type that represents the register PORTX */
+    typename T::pinx; /** type that represents the register PINX */
+    typename T::ddrx; /** type that represents the register DDRX */
+    }
+    && valid_bit_number<T::value>
+    && Bit<T>
+    && Register<typename T::portx>
+    && Register<typename T::pinx>
+    && Register<typename T::ddrx>
+;
 
 }}

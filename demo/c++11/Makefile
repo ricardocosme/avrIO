@@ -1,4 +1,4 @@
-STD_CXX=c++11
-demos=api led
+stdcxx=c++11
+demos=api led leds
 
 include ../common.mk
