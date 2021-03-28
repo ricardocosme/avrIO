@@ -199,6 +199,9 @@ struct reg : detail::reg_base {
     */
     detail::reg_value_t<reg> operator~() const noexcept
     { return {static_cast<uint8_t>(~ref())}; }
+
+    //Experimental
+    operator uint8_t() const noexcept { return ref(); }
     
     operator bool() const noexcept { return !!ref(); }
 };
