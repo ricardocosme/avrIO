@@ -109,3 +109,8 @@ void f() {
             );
     }
 }
+
+void greater_or_equal_to_0x60() {
+    uint8_t v = (1<<WDE) | (1<<WDCE);
+    asm("sts %0, %1" : : "n" (&WDTCSR), "r" (v));
+}

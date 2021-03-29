@@ -99,3 +99,7 @@ void f() {
     portb.clear(pb0(off), pb1);
     portb.clear(pb0, ~pb1, pb2);
 }
+
+void greater_or_equal_to_0x60() {
+    wdtcsr = {wde,wdce};
+}

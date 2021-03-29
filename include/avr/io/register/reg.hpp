@@ -99,7 +99,8 @@ struct reg : detail::reg_base {
           portb = {pc0, pb1, pb0}; //compile error
      */
     const reg& operator=(const detail::bits_t<reg>& o) const noexcept {
-        ref() = o.v;
+        if(addr < 0x60) ref() = o.v;
+        else asm("sts %0, %1" : : "n" (&ref()), "r" (o.v));
         return *this;
     }
 
