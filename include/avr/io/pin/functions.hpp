@@ -57,6 +57,13 @@ AVR_IO_ALWAYS_INLINE
 void high(T pin, bool v = true) noexcept
 { v ? detail::_high(pin) : low(pin); }
 
+/** Positive pulse */
+template<typename T> AVR_IO_REQUIRES_CONCEPT_PIN
+void pulse(T pin) noexcept {
+    pin.high();
+    pin.low();
+}
+
 /** Toggles the state of one or more pins.
 
     Examples:

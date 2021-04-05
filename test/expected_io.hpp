@@ -37,6 +37,12 @@ inline void high(volatile uint8_t& ddr, uint8_t pin, bool v = true) {
 }
 
 [[gnu::always_inline]]
+inline void pulse(volatile uint8_t& ddr, uint8_t pin) {
+    high(ddr, pin);
+    low(ddr, pin);
+}
+
+[[gnu::always_inline]]
 inline void toggle(volatile uint8_t& pinx, uint8_t pin)
 { pinx |= _BV(pin); }
 
@@ -73,5 +79,6 @@ functions_impl(volatile uint8_t& pinx, volatile uint8_t& ddr) {
     (..., toggle(pinx, pins));
     (..., test_is_high(ddr, pinx, pins));
     (..., test_is_low(ddr, pinx, pins));
+    (..., pulse(ddr, pins));
 }
 

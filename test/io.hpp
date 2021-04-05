@@ -27,4 +27,5 @@ template<typename... Pin>
     (..., toggle(pins));
     (..., _is_high(pins));
     (..., _is_low(pins));
+    (..., pulse(pins));
 }

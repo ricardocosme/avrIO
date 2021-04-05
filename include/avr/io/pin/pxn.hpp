@@ -84,6 +84,10 @@ struct pxn : bit<PORTX, pin_num>
     { avr::io::high(pxn{}, v); }
     
     /** see avr/io/pin/functions.hpp */
+    static void pulse() noexcept
+    { return avr::io::pulse(pxn{}); }
+    
+    /** see avr/io/pin/functions.hpp */
     AVR_IO_ALWAYS_INLINE
     static void toggle() noexcept
     { avr::io::toggle(pxn{}); }
