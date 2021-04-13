@@ -447,6 +447,9 @@ AVR_IO_INLINE_GLOBAL(pcint2)
 AVR_IO_INLINE_GLOBAL(pcint1)
 AVR_IO_INLINE_GLOBAL(pcint0)
 
+template<typename Pin>
+bit<pcmsk_t, Pin::value> pcint_to(Pin pin) { return{}; }
+
 /** DIDR0 0x14 */
 using didr0_t = reg<0x14 + 0x20>;
 using adc0d_t = bit<didr0_t, 5>;
