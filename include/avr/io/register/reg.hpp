@@ -20,6 +20,14 @@ struct reg : detail::reg_base {
     /** Memory address of the register. */
     static constexpr uint8_t addr = address;
 
+    /** Return the register address inside the I/O space. */
+    static constexpr uint8_t io_addr() {
+      static_assert(addr < 0x60,
+        "data memory address greater than or equal to 0x60 doesn't correspond" \
+        " to a register with an address on I/O space.");
+      return addr - AVR_IO_SFR_OFFSET;
+    }
+  
     /** Returns a reference to read/write. */
     static volatile uint8_t& ref() noexcept
     { return *reinterpret_cast<volatile uint8_t*>(addr); }
