@@ -1,7 +1,7 @@
 ** avrIO [[https://github.com/ricardocosme/avrIO/actions?query=workflow%3A%22tests%22][https://github.com/ricardocosme/avrIO/workflows/tests/badge.svg?branch=main]] [[https://github.com/ricardocosme/avrIO/actions?query=workflow%3A%22demos%22][https://github.com/ricardocosme/avrIO/workflows/demos/badge.svg?branch=main]]
-C++11/17/20 library to manipulate I/O port pins and registers of AVR8. The purpose of this work is to raise the level of abstraction to operate I/O ports or general I/O registers with zero-overhead in mind. It's a header only library that doesn't require any external dependency to be used, the only requirement is ~avr-gcc~ with at least C++11 support. 
+C++11/17/20 library for manipulating I/O port pins and registers of AVR8. The purpose of this library is to provide a higher level of abstraction for operating I/O ports and general I/O registers with zero-overhead in mind. It is a header-only library that does not require any external dependencies. The only requirement is to compile with ~avr-gcc~ using ~-Os~ optimization and have at least C++11 support. ~avr-libc~ is a reference for this work and avrIO can be seen as a C++ approach for ~avr/io.h~
 
-It can be useful in the application layer delivering an expressive code(see [[file:demo/c++11/led.cpp][demo/c++11/led.cpp]]) but it can also be used to develop flexible and concise APIs(see [[file:demo/c++20/api.cpp][demo/c++20/api.cpp]]).
+It can be useful in the application layer, delivering an expressive code(see [[file:demo/c++11/led.cpp][demo/c++11/led.cpp]]) as also be used to develop flexible and concise APIs(see [[file:demo/c++20/api.cpp][demo/c++20/api.cpp]]).
 
 **** Single I/O port pin
 
@@ -13,7 +13,7 @@ It can be useful in the application layer delivering an expressive code(see [[fi
 #+END_SRC
 [[file:demo/c++11/led.cpp][demo/c++11/led.cpp]]
 
-A LED connected to the pin `PB0` is turned on when the switch connected to `PB3` is on.
+A LED connected to the pin ~PB0~ is turned on when the switch connected to ~PB3~ is on.
 
 It illustrates the operation of on one pin at a time.
 
@@ -27,7 +27,7 @@ It illustrates the operation of on one pin at a time.
 #+END_SRC
 [[file:demo/c++17/leds.cpp][demo/c++17/leds.cpp]]
 
-A LED connected to the pin `PB0` is turned on when the switch connected to `PB2` is on and a LED connected to `PB4` is turned on when the switch connected to `PB1` is on.
+A LED connected to the pin ~PB0~ is turned on when the switch connected to ~PB2~ is on and a LED connected to ~PB4~ is turned on when the switch connected to ~PB1~ is on.
 
 It illustrates the operation of more than one pin at once. There is a C++11 version of demo at [[file:demo/c++11/leds.cpp][demo/c++11/leds.cpp]].
 
@@ -151,4 +151,4 @@ This is a header only library that doesn't require any external dependency to wo
 
 *** Requirements
 1. ~avr-gcc~ with at least ~-std=c++11~ (Tests with ~avr-gcc 10.2~)
-2. Optimization level greater or equal to `-O2`. This library is designed with the optimization `-Os` in mind.
+2. Optimization level greater or equal to ~-O2~. This library is designed with the optimization ~-Os~ in mind.
